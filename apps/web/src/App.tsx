@@ -1,13 +1,16 @@
-import { Button } from "@repo/ui/components/button";
-
 import "@repo/ui/styles/globals.css";
-
+import { routeTree } from "./routeTree.gen";
+import { createRouter, RouterProvider } from "@tanstack/react-router";
+const router = createRouter({
+  routeTree,
+});
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
 function App() {
-  return (
-    <div className="container mx-auto p-4">
-      <Button>hello</Button>
-    </div>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
