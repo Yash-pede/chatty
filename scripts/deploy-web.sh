@@ -1,10 +1,10 @@
 #!/bin/bash
 
 pushd infra
-# terraform init -input=false
-# echo "🚧 Applying Terraform infrastructure..."
-# terraform apply -auto-approve
-# echo "✅ Infrastructure applied."
+terraform init -input=false
+echo "🚧 Applying Terraform infrastructure..."
+terraform apply -auto-approve
+echo "✅ Infrastructure applied."
 
 
 BUCKET_NAME=$(terraform output -raw website_bucket_name)
@@ -14,9 +14,12 @@ echo "🏷️  Retrieved infrastructure outputs: $BUCKET_NAME, $CF_DISTRIBUTION_
 
 popd
 
+pushd apps/web/dist
 echo "📤 Uploading build to S3..."
-aws s3 sync ../apps/web/dist "s3://$BUCKET_NAME" --delete --recursive
+echo "uploading these files" | tree
+aws s3 sync . "s3://$BUCKET_NAME" --delete
 echo "✅ Upload complete."
+popd
 
 echo "🧹 Creating CloudFront invalidation..."
 aws cloudfront create-invalidation --distribution-id $CF_DISTRIBUTION_ID --paths "/*"

@@ -1,6 +1,5 @@
-'use client';
-
 import * as React from 'react';
+
 import { motion, isMotionComponent, type HTMLMotionProps } from 'motion/react';
 import { cn } from '@repo/ui/lib/utils';
 

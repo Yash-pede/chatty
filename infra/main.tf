@@ -12,4 +12,5 @@ module "frontend_cdn" {
   source             = "./modules/cloudfront"
   bucket_domain_name = module.frontend_bucket.bucket_domain_name
   bucket_arn         = module.frontend_bucket.bucket_arn
+  bucket_name        = module.frontend_bucket.bucket_name
 }

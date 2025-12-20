@@ -54,18 +54,23 @@ resource "aws_cloudfront_distribution" "this" {
 }
 
 resource "aws_s3_bucket_policy" "this" {
-  bucket = var.bucket_arn
+  bucket = var.bucket_name
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
+        Sid    = "AllowCloudFrontRead"
         Effect = "Allow"
+
         Principal = {
           Service = "cloudfront.amazonaws.com"
         }
-        Action   = "s3:GetObject"
+
+        Action = "s3:GetObject"
+
         Resource = "${var.bucket_arn}/*"
+
         Condition = {
           StringEquals = {
             "AWS:SourceArn" = aws_cloudfront_distribution.this.arn
