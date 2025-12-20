@@ -8,9 +8,6 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <React.Fragment>
-        <Link to="/">Home</Link> |{' '}
-        <Link to="/about">About</Link>
-        <hr />
       <Outlet />
     </React.Fragment>
   )

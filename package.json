@@ -8,7 +8,12 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "ui": "pnpm --filter @repo/ui ui"
+    "ui": "pnpm --filter @repo/ui ui",
+    "build:web": "turbo run build --filter=web",
+    "infra:apply": "cd infra && terraform init && terraform apply -auto-approve",
+    "infra:plan": "cd infra && terraform init && terraform plan",
+    "infra:destroy": "cd infra && terraform init && terraform destroy -auto-approve",
+    "deploy:web": "bash scripts/deploy-web.sh"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
