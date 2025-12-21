@@ -13,6 +13,7 @@
     "@repo/ui": "workspace:*",
     "@tanstack/react-router": "^1.141.6",
     "@tanstack/react-router-devtools": "^1.141.6",
+    "better-auth": "^1.4.7",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
     "zod": "^4.1.13"

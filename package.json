@@ -10,6 +10,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "ui": "pnpm --filter @repo/ui ui",
     "build:web": "turbo run build --filter=web",
+    "build:api": "turbo run build --filter=api",
     "infra:apply": "cd infra && terraform init && terraform apply -auto-approve",
     "infra:plan": "cd infra && terraform init && terraform plan",
     "infra:destroy": "cd infra && terraform init && terraform destroy -auto-approve",
