@@ -91,7 +91,7 @@ resource "aws_db_instance" "this" {
   vpc_security_group_ids = [aws_security_group.rds.id]
   parameter_group_name  = aws_db_parameter_group.this.name
 
-  publicly_accessible = false
+  publicly_accessible = var.is_public
   skip_final_snapshot = true
   deletion_protection = false
   multi_az            = false

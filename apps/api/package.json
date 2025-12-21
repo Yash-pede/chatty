@@ -10,6 +10,10 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
+    "drizzle:studio": "pnpm drizzle-kit studio --port 4000 --verbose",
+    "drizzle:push" : "pnpm drizzle-kit push --verbose",
+    "drizzle:generate": "pnpm drizzle-kit generate",
+    "drizzle:migrate": "pnpm drizzle-kit migrate",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -21,7 +25,11 @@
   "dependencies": {
     "better-auth": "catalog:",
     "cors": "^2.8.5",
-    "express": "^5.2.1"
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.45.1",
+    "express": "^5.2.1",
+    "pg": "^8.16.3",
+    "postgres": "^3.4.7"
   },
   "devDependencies": {
     "@eslint/js": "catalog:",
@@ -29,6 +37,8 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "catalog:",
+    "@types/pg": "^8.16.0",
+    "drizzle-kit": "^0.31.8",
     "eslint": "catalog:",
     "eslint-plugin-perfectionist": "^5.0.0",
     "prettier": "catalog:",

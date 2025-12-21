@@ -5,7 +5,7 @@
     "rootDir": "./",
     "paths": {
       "@/*": ["./src/*"]
-    },
+    }
   },
   "include": ["**/*.ts"],
   "exclude": ["dist"]

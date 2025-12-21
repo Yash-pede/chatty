@@ -8,7 +8,7 @@ data "aws_vpc" "default" {
 
 data "aws_subnets" "default" {
   filter {
-    name = "vpc-id"
+    name   = "vpc-id"
     values = [data.aws_vpc.default.id]
   }
 }
@@ -25,9 +25,10 @@ module "frontend_cdn" {
 }
 
 module "rds" {
-  source       = "./modules/db"
-  db_name      = "chatty_db"
-  db_username  = var.db_username
-  db_password  = var.db_password
+  source        = "./modules/db"
+  db_name       = "chatty_db"
+  db_username   = var.db_username
+  db_password   = var.db_password
   allowed_cidrs = ["0.0.0.0/0"]
+  is_public     = true
 }

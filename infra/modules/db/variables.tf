@@ -1,3 +1,9 @@
+variable "is_public" {
+  type        = bool
+  description = "Whether the database should be publicly accessible"
+  default     = false
+}
+
 variable "db_name" {
   type        = string
   description = "Initial database name"
