@@ -8,3 +8,19 @@ output "cloudfront_distribution_domain_id" {
 output "cloudfront_distribution_domain_name" {
   value = module.frontend_cdn.distribution_domain_name
 }
+
+output "rds_db_endpoint" {
+  value = module.rds.db_endpoint
+}
+
+output "rds_db_port" {
+  value = module.rds.db_port
+}
+
+output "rds_db_name" {
+  value = module.rds.db_name
+}
+
+output "rds_db_username" {
+  value = module.rds.db_username
+}

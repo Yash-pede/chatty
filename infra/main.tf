@@ -23,3 +23,11 @@ module "frontend_cdn" {
   bucket_arn         = module.frontend_bucket.bucket_arn
   bucket_name        = module.frontend_bucket.bucket_name
 }
+
+module "rds" {
+  source       = "./modules/db"
+  db_name      = "chatty_db"
+  db_username  = var.db_username
+  db_password  = var.db_password
+  allowed_cidrs = ["0.0.0.0/0"]
+}

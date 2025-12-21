@@ -14,6 +14,7 @@ catalog:
   "@types/eslint": ^9
   "typescript-eslint": ^8.49.0
   "vite": ^7.2.7
+  "better-auth": "^1.4.7"
 
 catalogs:
   react19:
