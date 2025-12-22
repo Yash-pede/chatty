@@ -1,19 +1,23 @@
-import cors from "cors";
-import express from "express";
+import 'dotenv/config'
+import { clerkClient, getAuth, requireAuth } from '@clerk/express'
+import express from 'express'
 
-const app = express();
-const port = process.env.PORT ?? "8000";
+const app = express()
+const PORT = 3000
 
+// Use requireAuth() to protect this route
+// If user isn't authenticated, requireAuth() will redirect back to the homepage
+app.get('/protected', requireAuth(), async (req, res) => {
+  // Use `getAuth()` to get the user's `userId`
+  const { userId } = getAuth(req)
 
-app.use(cors());
+  // Use Clerk's JS Backend SDK to get the user's User object
+  const user = await clerkClient.users.getUser(userId)
 
-app.use(express.json());
+  return res.json({ user })
+})
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-  console.log("Response sent");
-});
-
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+// Start the server and listen on the specified port
+app.listen(PORT, () => {
+  console.log(`Example app listening at http://localhost:${PORT}`)
+})
