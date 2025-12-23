@@ -1,8 +1,12 @@
 {
-  "name": "turborepo-vite-shadcn-ui",
+  "name": "chatty",
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",

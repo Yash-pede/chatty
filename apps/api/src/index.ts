@@ -1,23 +1,20 @@
 import 'dotenv/config'
-import { clerkClient, getAuth, requireAuth } from '@clerk/express'
+import { clerkMiddleware} from '@clerk/express'
 import express from 'express'
+import UserRouter from './routes/user.js'
 
 const app = express()
-const PORT = 3000
+const PORT = process.env.PORT!
 
-// Use requireAuth() to protect this route
-// If user isn't authenticated, requireAuth() will redirect back to the homepage
-app.get('/protected', requireAuth(), async (req, res) => {
-  // Use `getAuth()` to get the user's `userId`
-  const { userId } = getAuth(req)
+app.use(clerkMiddleware())
 
-  // Use Clerk's JS Backend SDK to get the user's User object
-  const user = await clerkClient.users.getUser(userId)
+app.use('/user', UserRouter)
 
-  return res.json({ user })
+app.get('/', (req, res) => {
+  console.log("🔥 Hello World! 🔥");
+  res.send('Hello World!')
 })
 
-// Start the server and listen on the specified port
 app.listen(PORT, () => {
   console.log(`Example app listening at http://localhost:${PORT}`)
 })

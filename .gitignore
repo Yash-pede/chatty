@@ -6,7 +6,8 @@ node_modules
 .pnp.js
 package-lock.json
 yarn.lock
-pnpm-lock.yaml
+
+out
 
 # Local env files
 .env

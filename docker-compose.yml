@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+    env_file:
+      - ./apps/api/.env
+    restart: always
+    ports:
+      - 8080:8080

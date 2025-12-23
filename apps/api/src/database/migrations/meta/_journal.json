@@ -8,6 +8,13 @@
       "when": 1766333155158,
       "tag": "0000_thin_nick_fury",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1766420244477,
+      "tag": "0001_woozy_meteorite",
+      "breakpoints": true
     }
   ]
 }

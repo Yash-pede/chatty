@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
+ 
 import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
 
@@ -13,8 +13,8 @@ export default defineConfig({
   migrations: {
     schema: "public",
   },
-  out: "./src/db/migrations",
-  schema: "./src/db/schema.ts",
+  out: "./src/database/migrations",
+  schema: "./src/database/schema.ts",
   strict: true,
   verbose: true,
 });
