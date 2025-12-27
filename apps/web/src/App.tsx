@@ -3,6 +3,7 @@ import { RouterProvider } from "@tanstack/react-router";
 import { ThemeProvider } from "@repo/ui/components/theme-provider";
 import { ClerkWrapper, useClerkAuth } from "./auth/clerk";
 import { router } from "./router";
+import { Spinner } from "@repo/ui/components/spinner";
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;
@@ -14,7 +15,7 @@ function InnerApp() {
   if (auth.isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        Loading...
+        <Spinner />
       </div>
     );
   }

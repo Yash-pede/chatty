@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DdlMappings">
+    <mapping uuid="b6207830-fe47-4040-8be1-eb808f0c4776" name="chatty-postgres Mapping">
+      <data-sources db="5417fb29-c635-41a9-9409-0a9c9c8ddb1a" />
+    </mapping>
+  </component>
+</project>

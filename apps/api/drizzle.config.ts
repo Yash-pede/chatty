@@ -1,4 +1,3 @@
- 
 import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
 
@@ -13,8 +12,8 @@ export default defineConfig({
   migrations: {
     schema: "public",
   },
-  out: "./src/database/migrations",
-  schema: "./src/database/schema.ts",
+  out: "./src/config/database/migrations",
+  schema: "./src/config/database/schema.ts",
   strict: true,
   verbose: true,
 });

@@ -42,4 +42,4 @@ RUN adduser --system --uid 1001 expressjs
 USER expressjs
 COPY --from=builder /app .
 
-CMD ["node", "apps/api/dist/src/index.js"]
+CMD ["node", "apps/api/dist/src/server.js"]
