@@ -18,7 +18,8 @@
     "infra:apply": "cd infra && terraform init && terraform apply -auto-approve",
     "infra:plan": "cd infra && terraform init && terraform plan",
     "infra:destroy": "cd infra && terraform init && terraform destroy -auto-approve",
-    "deploy:web": "bash scripts/deploy-web.sh"
+    "deploy:web": "bash scripts/deploy-web.sh",
+    "deploy:api": "bash scripts/push-ecr.sh"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

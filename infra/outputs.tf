@@ -26,5 +26,5 @@ output "rds_db_username" {
 }
 
 output "ecr-repository_url" {
-  value = aws_ecr_repository.api-ecr.repository_url 
+  value = aws_ecr_repository.api-ecr.repository_url
 }

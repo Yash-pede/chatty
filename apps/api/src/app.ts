@@ -10,6 +10,10 @@ import webhookRouter from "@/modules/webhook/webhook.router.js";
 
 export const app = express();
 
+app.get("/health", (_, res) => {
+  res.status(200).send("ok");
+});
+
 app.use(requestLogger);
 
 app.get("/", async (req, res) => {
