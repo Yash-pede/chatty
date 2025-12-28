@@ -1,0 +1,16 @@
+| Permission                 | user | agent | moderator | admin |
+| -------------------------- | ---- | ----- | --------- | ----- |
+| message:send               | ✅    | ✅     | ✅         | ✅     |
+| message:read               | ✅    | ✅     | ✅         | ✅     |
+| message:edit               | ❌    | ❌     | ❌         | ✅     |
+| message:delete             | ❌    | ❌     | ✅         | ✅     |
+| conversation:create        | ✅    | ❌     | ❌         | ✅     |
+| conversation:close         | ❌    | ❌     | ✅         | ✅     |
+| conversation:add_member    | ❌    | ❌     | ✅         | ✅     |
+| conversation:remove_member | ❌    | ❌     | ✅         | ✅     |
+| user:block                 | ✅    | ✅     | ✅         | ✅     |
+| user:ban                   | ❌    | ❌     | ✅         | ✅     |
+| user:unban                 | ❌    | ❌     | ✅         | ✅     |
+| report:review              | ❌    | ❌     | ✅         | ✅     |
+| support:assign             | ❌    | ❌     | ❌         | ✅     |
+| support:respond            | ❌    | ✅     | ❌         | ✅     |

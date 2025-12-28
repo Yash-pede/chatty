@@ -120,6 +120,7 @@ module "ecs" {
 
       subnet_ids         = data.aws_subnets.default.ids
       security_group_ids = [aws_security_group.ecs_sg.id]
+
       container_definitions = {
         chatty-container = {
           image     = "${var.ecr_repo_url}:latest"
@@ -127,9 +128,8 @@ module "ecs" {
 
           port_mappings = [
             {
-              name          = "chatty-api-8080" # Add name
+              name          = "chatty-api-8080"
               containerPort = 8080
-              hostPort      = 8080 # Add hostPort for Fargate
               protocol      = "tcp"
             }
           ]
