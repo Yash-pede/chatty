@@ -13,14 +13,15 @@ export const getClerkController = asyncHandler(
   async (req: Request, res: Response) => {
     const evt = await verifyWebhook(req);
 
-    const actionType= evt.type;
+    const actionType = evt.type;
     const clerkUser = req.body.data;
-    const userData: InsertUser = {
+    const userData: InsertUser & { role: string } = {
       id: clerkUser.id,
       username: clerkUser.username,
       firstName: clerkUser.first_name,
       lastName: clerkUser.last_name,
       fullName: clerkUser.first_name + " " + clerkUser.last_name,
+      role: clerkUser.unsafe_metadata?.role ?? "user",
       email: clerkUser.email_addresses[0].email_address,
       imageUrl:
         clerkUser.external_accounts[0].avatar_url ?? clerkUser.image_url,
@@ -41,21 +42,18 @@ export const getClerkController = asyncHandler(
         return res.status(201).json({
           status: "success",
         });
-        break;
       case "user.updated":
         logger.info(req.body.data, "Updating User");
         await updateUser(userData);
         return res.status(201).json({
           status: "success",
         });
-        break;
       case "user.deleted":
         logger.info(req.body.data, "Deleting User");
         await deleteUser(userData);
         return res.status(201).json({
           status: "success",
         });
-        break;
       default:
         logger.error(`Unknown action type ${actionType}`);
         return res.status(401).json({

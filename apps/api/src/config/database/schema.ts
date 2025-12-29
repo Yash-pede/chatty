@@ -139,7 +139,7 @@ export const rolePermissions = pgTable(
 ====================================================== */
 
 export const userRoles = pgTable(
-  "user_roles",
+"user_roles",
   {
     userId: text("user_id")
       .references(() => users.id, { onDelete: "cascade" })
