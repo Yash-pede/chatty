@@ -3,6 +3,7 @@ import { RouterProvider } from "@tanstack/react-router";
 import { ClerkWrapper, useClerkAuth } from "./auth/clerk";
 import { router } from "./router";
 import { Spinner } from "@repo/ui/components/spinner";
+import { ThemeProvider } from "@repo/ui/components/providers/theme-provider";
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;
@@ -23,7 +24,14 @@ function InnerApp() {
 function App() {
   return (
     <ClerkWrapper>
-      <InnerApp />
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <InnerApp />
+      </ThemeProvider>
     </ClerkWrapper>
   );
 }

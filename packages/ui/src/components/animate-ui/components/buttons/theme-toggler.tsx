@@ -46,7 +46,7 @@ type ThemeTogglerButtonProps = React.ComponentProps<"button"> &
 function ThemeTogglerButton({
   variant = "default",
   size = "default",
-  modes = ["light", "dark"],
+  modes = ["light", "dark", "system"],
   direction = "ltr",
   onImmediateChange,
   onClick,
