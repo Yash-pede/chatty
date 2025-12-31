@@ -1,9 +1,9 @@
 #!/bin/bash
 
 pushd infra
-terraform init -input=false
+#terraform init -input=false
 echo "🚧 Applying Terraform infrastructure..."
-terraform apply -auto-approve
+#terraform apply -auto-approve
 echo "✅ Infrastructure applied."
 
 

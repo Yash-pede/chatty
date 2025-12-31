@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SignIn } from "@clerk/clerk-react";
+import { z } from "zod";
+import { zodValidator } from "@tanstack/zod-adapter";
 
+const valodateUserRoleSchema = z.object({
+  role: z.string().optional().default("user"),
+});
 export const Route = createFileRoute("/sign-in")({
-  validateSearch: (search: Record<string, unknown>): { role: string } => {
-    return {
-      role: search.role as string,
-    };
-  },
+  validateSearch: zodValidator(valodateUserRoleSchema),
   component: SignInComponent,
 });
 
@@ -15,7 +16,6 @@ function SignInComponent() {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <SignIn
-        redirectUrl="/"
         signUpUrl="/sign-up"
         unsafeMetadata={{ role: role ?? "user" }}
       />

@@ -4,9 +4,10 @@ import { motion, AnimatePresence, type HTMLMotionProps } from 'motion/react';
 import { Slot, type WithAsChild } from '@repo/ui/components/animate-ui/primitives/animate/slot';
 import {
   useIsInView,
-  type UseIsInViewOptions,
-} from '@repo/ui/hooks/use-is-in-view';
-import { getStrictContext } from '@repo/ui/lib/get-strict-context';
+  UseIsInViewOptions,
+} from "../../../../hooks/use-is-in-view.js";
+import { getStrictContext } from "../../../../lib/get-strict-context.js";
+
 
 type Side = 'top' | 'bottom' | 'left' | 'right';
 type Align = 'start' | 'center' | 'end';

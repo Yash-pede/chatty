@@ -1,5 +1,5 @@
 import React from "react";
-import { ThemeTogglerButton } from "@repo/ui/components/animate-ui/components/buttons/theme-toggler.js";
+import { ThemeTogglerButton } from "../animate-ui/components/buttons/theme-toggler.js";
 
 type NavbarProps = {
   UserButton: React.ComponentType<any>;
