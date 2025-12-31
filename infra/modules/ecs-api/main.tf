@@ -2,12 +2,18 @@ data "aws_vpc" "default" {
   default = true
 }
 
-data "aws_subnets" "default" {
+data "aws_subnets" "public" {
   filter {
     name   = "vpc-id"
     values = [data.aws_vpc.default.id]
   }
+
+  filter {
+    name   = "map-public-ip-on-launch"
+    values = ["true"]
+  }
 }
+
 
 data "aws_secretsmanager_secret" "chatty_env" {
   name = "chatty/backend/env"
@@ -37,7 +43,7 @@ resource "aws_security_group" "alb_sg" {
 resource "aws_lb" "chatty_alb" {
   name               = "chatty-alb"
   load_balancer_type = "application"
-  subnets            = data.aws_subnets.default.ids
+  subnets            = data.aws_subnets.public.ids
   security_groups    = [aws_security_group.alb_sg.id]
 
   idle_timeout = 3600
@@ -45,7 +51,7 @@ resource "aws_lb" "chatty_alb" {
 
 resource "aws_lb_target_group" "chatty_tg" {
   name        = "chatty-tg"
-  port        = var.container_port
+  port        = 8080
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = data.aws_vpc.default.id
@@ -95,30 +101,47 @@ module "ecs" {
   source = "terraform-aws-modules/ecs/aws"
 
   cluster_name = "chatty-cluster"
-  task_exec_iam_statements = {
-    secrets = {
-      actions   = ["secretsmanager:GetSecretValue"]
-      resources = [data.aws_secretsmanager_secret.chatty_env.arn]
-    }
-  }
+
+
   default_capacity_provider_strategy = {
     FARGATE = {
       base   = 1
       weight = 1
     }
     FARGATE_SPOT = {
-      weight = 1
+      base   = 0
+      weight = 2
+    }
+  }
+  create_task_exec_iam_role = true
+  create_task_exec_policy   = true
+  # task_exec_ssm_param_arns = [
+  #   data.aws_secretsmanager_secret.chatty_env.arn
+  # ]
+  task_exec_iam_statements = {
+    secrets_manager_read = {
+      sid     = "SecretsManagerRead"
+      effect  = "Allow"
+      actions = ["secretsmanager:GetSecretValue"]
+      resources = [
+        data.aws_secretsmanager_secret.chatty_env.arn
+      ]
     }
   }
 
   services = {
     chatty-api = {
-      desired_count = 2
+      desired_count = 1
       cpu           = 1024
       memory        = 2048
       launch_type   = "FARGATE"
 
-      subnet_ids         = data.aws_subnets.default.ids
+      assign_public_ip          = true
+      enable_execute_command    = false
+      create_task_exec_iam_role = false
+      create_task_exec_policy   = false
+
+      subnet_ids         = data.aws_subnets.public.ids
       security_group_ids = [aws_security_group.ecs_sg.id]
 
       container_definitions = {
@@ -126,7 +149,7 @@ module "ecs" {
           image     = "${var.ecr_repo_url}:latest"
           essential = true
 
-          port_mappings = [
+          portMappings = [
             {
               name          = "chatty-api-8080"
               containerPort = 8080
@@ -135,6 +158,10 @@ module "ecs" {
           ]
 
           secrets = [
+            {
+              name      = "PORT"
+              valueFrom = "${data.aws_secretsmanager_secret.chatty_env.arn}:PORT::"
+            },
             {
               name      = "DATABASE_URL"
               valueFrom = "${data.aws_secretsmanager_secret.chatty_env.arn}:DATABASE_URL::"
@@ -161,7 +188,7 @@ module "ecs" {
         service = {
           target_group_arn = aws_lb_target_group.chatty_tg.arn
           container_name   = "chatty-container"
-          container_port   = var.container_port
+          container_port   = 8080
         }
       }
     }

@@ -1,6 +1,5 @@
 import "@repo/ui/styles/globals.css";
 import { RouterProvider } from "@tanstack/react-router";
-import { ThemeProvider } from "@repo/ui/components/theme-provider";
 import { ClerkWrapper, useClerkAuth } from "./auth/clerk";
 import { router } from "./router";
 import { Spinner } from "@repo/ui/components/spinner";
@@ -24,11 +23,9 @@ function InnerApp() {
 }
 function App() {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
-      <ClerkWrapper>
-        <InnerApp />
-      </ClerkWrapper>
-    </ThemeProvider>
+    <ClerkWrapper>
+      <InnerApp />
+    </ClerkWrapper>
   );
 }
 

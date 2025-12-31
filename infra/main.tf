@@ -6,12 +6,18 @@ data "aws_vpc" "default" {
   default = true
 }
 
-data "aws_subnets" "default" {
+data "aws_subnets" "public" {
   filter {
     name   = "vpc-id"
     values = [data.aws_vpc.default.id]
   }
+
+  filter {
+    name   = "map-public-ip-on-launch"
+    values = ["true"]
+  }
 }
+
 
 data "aws_availability_zones" "available" {
   # Exclude local zones
@@ -64,8 +70,9 @@ resource "aws_ecr_repository" "api-ecr" {
     scan_on_push = true
   }
 }
-# module "backend_ecs" {
-#   source         = "./modules/ecs-api"
-#   ecr_repo_url   = aws_ecr_repository.api-ecr.repository_url
-#   container_port = "8080"
-# }
+
+module "backend_ecs" {
+  source         = "./modules/ecs-api"
+  ecr_repo_url   = aws_ecr_repository.api-ecr.repository_url
+  container_port = 8080
+}
