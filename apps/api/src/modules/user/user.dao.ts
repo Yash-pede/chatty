@@ -16,7 +16,7 @@ export const userDao = {
   },
   updateClerkPublicMetadata: async (userId: string, role = "user") => {
     await clerkClient.users.updateUserMetadata(userId, {
-      privateMetadata: {
+      publicMetadata: {
         role,
       },
     });

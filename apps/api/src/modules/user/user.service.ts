@@ -3,13 +3,13 @@ import { userDao } from "@/modules/user/user.dao.js";
 import { BadRequestError } from "@/core/errors/AppError.js";
 
 export const createUser = async (data: InsertUser & { role: string }) => {
-  await userDao.updateClerkPublicMetadata(data.id, data.role);
   const roles = await userDao.getAllRoles();
-  if (!roles.some((role) => role.name === data.role))
-    throw new BadRequestError("Invalid role");
-  const role = roles.find((role) => role.name === data.role);
+  const role =
+    roles.find((role) => role.name === data.role) ??
+    roles.find((role) => role.name === "user");
   if (!role || role.id) throw new BadRequestError("Invalid role");
   await userDao.setUserRole(role.id, data.id);
+  await userDao.updateClerkPublicMetadata(data.id, role.name);
   return await userDao.createUser(data);
 };
 

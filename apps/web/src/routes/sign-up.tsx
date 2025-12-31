@@ -14,7 +14,11 @@ function SignUpComponent() {
   const { role } = Route.useSearch();
   return (
     <div className="flex items-center justify-center min-h-screen">
-      <SignUp redirectUrl="/" signInUrl="/sign-in" unsafeMetadata={{ role }} />
+      <SignUp
+        redirectUrl="/"
+        signInUrl="/sign-in"
+        unsafeMetadata={{ role: role ?? "user" }}
+      />
     </div>
   );
 }

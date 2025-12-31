@@ -1,4 +1,4 @@
-import { NextFunction, Response, Request } from "express";
+import { Response, Request } from "express";
 import { asyncHandler } from "@/core/asyncHandler.js";
 import {
   createUser,
@@ -37,19 +37,19 @@ export const getClerkController = asyncHandler(
     };
     switch (actionType) {
       case "user.created":
-        logger.info(req.body.data, "Creating User");
+        logger.info("Creating User");
         await createUser(userData);
         return res.status(201).json({
           status: "success",
         });
       case "user.updated":
-        logger.info(req.body.data, "Updating User");
+        logger.info("Updating User");
         await updateUser(userData);
         return res.status(201).json({
           status: "success",
         });
       case "user.deleted":
-        logger.info(req.body.data, "Deleting User");
+        logger.info("Deleting User");
         await deleteUser(userData);
         return res.status(201).json({
           status: "success",
