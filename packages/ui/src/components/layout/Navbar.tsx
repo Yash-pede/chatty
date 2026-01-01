@@ -1,5 +1,5 @@
 import React from "react";
-import { ThemeTogglerButton } from "../animate-ui/components/buttons/theme-toggler.js";
+import { ModeToggle } from "@repo/ui/components/mode-toggle.js";
 
 type NavbarProps = {
   UserButton: React.ComponentType<any>;
@@ -12,7 +12,7 @@ export const Navbar = ({ UserButton }: NavbarProps) => {
         <h3 className={"font-medium text-2xl "}>CHATTY</h3>
       </div>
       <div className="flex items-center justify-between gap-10 mr-4">
-        <ThemeTogglerButton />
+        <ModeToggle/>
         <UserButton />
       </div>
     </div>

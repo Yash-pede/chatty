@@ -24,12 +24,7 @@ function InnerApp() {
 function App() {
   return (
     <ClerkWrapper>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
+      <ThemeProvider defaultTheme="dark">
         <InnerApp />
       </ThemeProvider>
     </ClerkWrapper>
