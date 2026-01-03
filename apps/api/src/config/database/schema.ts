@@ -61,7 +61,6 @@ export const users = pgTable(
     username: text("username").unique(),
     firstName: text("first_name"),
     lastName: text("last_name"),
-    fullName: text("full_name"),
     hasImage: boolean("has_image").default(false),
     imageUrl: text("image_url"),
     locked: boolean("locked").default(false).notNull(),
@@ -139,7 +138,7 @@ export const rolePermissions = pgTable(
 ====================================================== */
 
 export const userRoles = pgTable(
-"user_roles",
+  "user_roles",
   {
     userId: text("user_id")
       .references(() => users.id, { onDelete: "cascade" })

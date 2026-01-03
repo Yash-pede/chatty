@@ -8,8 +8,8 @@ export const userDao = {
   createUser: async (data: InsertUser) => {
     return db.insert(users).values(data);
   },
-  updateUser: async (data: InsertUser) => {
-    return db.update(users).set(data).where(eq(users.id, data.id));
+  updateUser: async (userId: string, data: Partial<InsertUser>) => {
+    return db.update(users).set(data).where(eq(users.id, userId));
   },
   deleteUser: async (userId: string) => {
     return db.update(users).set({ deleted: true }).where(eq(users.id, userId));

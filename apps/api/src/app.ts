@@ -10,6 +10,10 @@ import webhookRouter from "@/modules/webhook/webhook.router.js";
 
 export const app = express();
 
+app.disable("x-powered-by");
+// WEBHOOKS
+app.use(webhookRouter);
+
 app.get("/health", (_, res) => {
   res.status(200).send("ok");
 });
@@ -23,9 +27,6 @@ app.get("/", async (req, res) => {
 
 app.use(cors());
 app.use(express.json());
-
-// WEBHOOKS
-app.use(webhookRouter);
 
 app.use(clerkMiddleware());
 
