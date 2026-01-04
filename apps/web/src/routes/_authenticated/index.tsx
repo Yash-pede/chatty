@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_authenticated/")({
 
 function RouteComponent() {
   return (
-    <div>
+    <div className="h-screen flex flex-col">
       <Navbar UserButton={UserButton} />
       <MainChatComponent />
     </div>

@@ -1,10 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Outfit:wght@100..900&family=Playwrite+NO:wght@100..400&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @source "../../../apps/**/*.{ts,tsx}";
 @source "../../../components/**/*.{ts,tsx}";
 @source "../**/*.{ts,tsx}";
-
 
 @custom-variant dark (&:is(.dark *));
 
@@ -124,5 +125,6 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: "Nunito", sans-serif;
   }
 }
