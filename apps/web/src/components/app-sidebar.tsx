@@ -1,16 +1,13 @@
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuItem,
   useSidebar,
 } from "@repo/ui/components/sidebar";
 import { Search } from "lucide-react";
-import { UserButton } from "@clerk/clerk-react";
 import { NewChatDropdown } from "@/components/chat/ChatDropdown.tsx";
 import {
   InputGroup,
@@ -19,6 +16,7 @@ import {
 } from "@repo/ui/components/input-group";
 import { useEffect } from "react";
 import SidebarChatItem from "@/components/chat/SidebarChatItem.tsx";
+import CustomSidebarFooter from "@/components/chat/SidebarFooter.tsx";
 
 export function AppSidebar() {
   const { setOpenMobile, isMobile } = useSidebar();
@@ -53,13 +51,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <UserButton />
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
+      <CustomSidebarFooter />
     </Sidebar>
   );
 }
