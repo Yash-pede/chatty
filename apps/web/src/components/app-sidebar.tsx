@@ -6,9 +6,6 @@ import {
   SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuBadge,
-  SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@repo/ui/components/sidebar";
@@ -21,19 +18,14 @@ import {
   InputGroupInput,
 } from "@repo/ui/components/input-group";
 import { useEffect } from "react";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@repo/ui/components/avatar";
+import SidebarChatItem from "@/components/chat/SidebarChatItem.tsx";
 
 export function AppSidebar() {
-  const { state, open, setOpen, openMobile, setOpenMobile, isMobile } =
-    useSidebar();
+  const { setOpenMobile, isMobile } = useSidebar();
 
   useEffect(() => {
     if (isMobile) setOpenMobile(true);
-  }, [isMobile]);
+  }, [isMobile, setOpenMobile]);
 
   return (
     <Sidebar variant="floating">
@@ -56,26 +48,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton className={"group/chat-item"}>
-                  <Avatar>
-                    <AvatarImage
-                      src="https://github.com/shadcn.png"
-                      alt="@shadcn"
-                    />
-                    <AvatarFallback>CN</AvatarFallback>
-                  </Avatar>{" "}
-                  CHAT
-                  <SidebarMenuBadge className={"group-hover/chat-item:hidden "}>
-                    1
-                  </SidebarMenuBadge>
-                  <SidebarMenuAction
-                    className={"group-hover/chat-item:block hidden"}
-                  >
-                    L
-                  </SidebarMenuAction>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              <SidebarChatItem />
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
