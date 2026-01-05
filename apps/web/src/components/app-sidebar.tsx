@@ -3,69 +3,79 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupAction,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuAction,
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@repo/ui/components/sidebar";
-import { Calendar, Home, Inbox, Plus, Search, Settings } from "lucide-react";
+import { Search } from "lucide-react";
 import { UserButton } from "@clerk/clerk-react";
-
-const items = [
-  {
-    title: "Home",
-    url: "#",
-    icon: Home,
-  },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
-];
+import { NewChatDropdown } from "@/components/chat/ChatDropdown.tsx";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@repo/ui/components/input-group";
+import { useEffect } from "react";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@repo/ui/components/avatar";
 
 export function AppSidebar() {
+  const { state, open, setOpen, openMobile, setOpenMobile, isMobile } =
+    useSidebar();
+
+  useEffect(() => {
+    if (isMobile) setOpenMobile(true);
+  }, [isMobile]);
+
   return (
     <Sidebar variant="floating">
-      <SidebarHeader className={"text-2xl"}>Chats</SidebarHeader>
+      <SidebarHeader title={"chat"} className={"mt-2"}>
+        <div className="w-full flex flex-col gap-4">
+          <div className={"flex justify-between items-center"}>
+            <h3 className={"text-xl font-bold"}>Chats</h3>
+            <NewChatDropdown />
+          </div>
+          <InputGroup>
+            <InputGroupInput placeholder="Chat search..." />
+            <InputGroupAddon>
+              <Search />
+            </InputGroupAddon>
+            {/*<InputGroupAddon align="inline-end">12 results</InputGroupAddon>*/}
+          </InputGroup>
+        </div>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel asChild>Projects</SidebarGroupLabel>
-          <SidebarGroupAction title="Add Project">
-            <Plus /> <span className="sr-only">Add Project</span>
-          </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                  <SidebarMenuBadge>24</SidebarMenuBadge>
-                </SidebarMenuItem>
-              ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton className={"group/chat-item"}>
+                  <Avatar>
+                    <AvatarImage
+                      src="https://github.com/shadcn.png"
+                      alt="@shadcn"
+                    />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>{" "}
+                  CHAT
+                  <SidebarMenuBadge className={"group-hover/chat-item:hidden "}>
+                    1
+                  </SidebarMenuBadge>
+                  <SidebarMenuAction
+                    className={"group-hover/chat-item:block hidden"}
+                  >
+                    L
+                  </SidebarMenuAction>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
