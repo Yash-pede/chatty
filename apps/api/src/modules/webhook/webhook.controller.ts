@@ -75,7 +75,7 @@ export const getClerkController = asyncHandler(
 
     switch (actionType) {
       case "user.created":
-        logger.info(`Creating User: ${clerkUser}`);
+        logger.info(`Creating User: ${clerkUser.id}`);
         await createUser(userData);
         return res
           .status(201)
