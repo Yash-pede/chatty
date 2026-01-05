@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Navbar } from "@repo/ui/components/layout/Navbar";
-import { UserButton } from "@clerk/clerk-react";
-import MainChatComponent from "@/components/MainChat.tsx";
+import { AppSidebar } from "@/components/app-sidebar.tsx";
+import ChatBox from "@/components/chat/ChatBox";
+import { messages } from "@/constants";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: RouteComponent,
@@ -9,9 +9,11 @@ export const Route = createFileRoute("/_authenticated/")({
 
 function RouteComponent() {
   return (
-    <div>
-      <Navbar UserButton={UserButton} />
-      <MainChatComponent />
-    </div>
+    <>
+      <AppSidebar />
+      <main className="flex-1">
+        <ChatBox messages={messages} />
+      </main>
+    </>
   );
 }

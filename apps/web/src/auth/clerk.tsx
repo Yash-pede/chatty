@@ -1,4 +1,4 @@
-import { ClerkProvider, useUser, useAuth } from "@clerk/clerk-react";
+import { ClerkProvider, useAuth, useUser } from "@clerk/clerk-react";
 import * as React from "react";
 
 export function ClerkWrapper({ children }: { children: React.ReactNode }) {
@@ -15,14 +15,7 @@ export function useClerkAuth() {
 
   return {
     isAuthenticated: isSignedIn,
-    user: user
-      ? {
-          id: user.id,
-          username:
-            user.username || user.primaryEmailAddress?.emailAddress || "",
-          email: user.primaryEmailAddress?.emailAddress || "",
-        }
-      : null,
+    user: user ? user : null,
     isLoading: !isLoaded,
   };
 }
