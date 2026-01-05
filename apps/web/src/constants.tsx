@@ -1,4 +1,4 @@
-export interface sidebarData {
+export interface SidebarData {
   id: string;
   type: "direct" | "group" | "support";
   name: string | null;
@@ -12,7 +12,24 @@ export interface sidebarData {
   createdAt: string;
 }
 
-export const sidebarChatData: sidebarData[] = [
+export type Message = {
+  id: string,
+  conversationId: string,
+  senderId: string,
+  clientMessageId: string,
+  type: "text" | "image" | "file",
+  content: {
+    text?: string,
+    url?: string,
+    filename?: string,
+  },
+  replyToId: string | null,
+  isEdited: boolean,
+  isDeleted: boolean,
+  createdAt: string,
+}
+
+export const sidebarChatData: SidebarData[] = [
   {
     id: "c1a11111-aaaa-4aaa-bbbb-000000000001",
     type: "direct",
@@ -161,7 +178,7 @@ export const sidebarChatData: sidebarData[] = [
   },
 ];
 
-export const messages = [
+export const messages: Message[] = [
   {
     id: "m0001-uuid",
     conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000001",
@@ -188,7 +205,7 @@ export const messages = [
   },
   {
     id: "m0003-uuid",
-    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000002",
+    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000001",
     senderId: "user_002",
     clientMessageId: "cli_003",
     type: "text",
@@ -200,8 +217,8 @@ export const messages = [
   },
   {
     id: "m0004-uuid",
-    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000002",
-    senderId: "user_003",
+    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000001",
+    senderId: "user_001",
     clientMessageId: "cli_004",
     type: "text",
     content: { text: "Great, thanks!" },
@@ -212,8 +229,8 @@ export const messages = [
   },
   {
     id: "m0005-uuid",
-    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000003",
-    senderId: "user_003",
+    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000001",
+    senderId: "user_001",
     clientMessageId: "cli_005",
     type: "text",
     content: { text: "Payment failed, please retry" },
@@ -224,8 +241,8 @@ export const messages = [
   },
   {
     id: "m0006-uuid",
-    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000003",
-    senderId: "agent_001",
+    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000001",
+    senderId: "agent_002",
     clientMessageId: "cli_006",
     type: "text",
     content: { text: "Retry kar do, sir" },
@@ -248,8 +265,8 @@ export const messages = [
   },
   {
     id: "m0008-uuid",
-    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000005",
-    senderId: "agent_002",
+    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000001",
+    senderId: "agent_001",
     clientMessageId: "cli_008",
     type: "text",
     content: { text: "Your account is now verified" },
@@ -260,8 +277,8 @@ export const messages = [
   },
   {
     id: "m0009-uuid",
-    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000006",
-    senderId: "user_006",
+    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000001",
+    senderId: "user_002",
     clientMessageId: "cli_009",
     type: "text",
     content: { text: "Indexes add kar diye" },
@@ -272,8 +289,8 @@ export const messages = [
   },
   {
     id: "m0010-uuid",
-    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000006",
-    senderId: "user_007",
+    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000001",
+    senderId: "user_001",
     clientMessageId: "cli_010",
     type: "text",
     content: { text: "Thanks!" },
@@ -284,8 +301,8 @@ export const messages = [
   },
   {
     id: "m0011-uuid",
-    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000007",
-    senderId: "user_007",
+    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000001",
+    senderId: "user_002",
     clientMessageId: "cli_011",
     type: "text",
     content: { text: "Call kare?" },
@@ -296,8 +313,8 @@ export const messages = [
   },
   {
     id: "m0012-uuid",
-    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000008",
-    senderId: "agent_003",
+    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000001",
+    senderId: "agent_002",
     clientMessageId: "cli_012",
     type: "text",
     content: { text: "We are investigating this issue" },
@@ -308,8 +325,8 @@ export const messages = [
   },
   {
     id: "m0013-uuid",
-    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000009",
-    senderId: "user_009",
+    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000001",
+    senderId: "user_001",
     clientMessageId: "cli_013",
     type: "text",
     content: { text: "Figma link updated" },
@@ -320,8 +337,8 @@ export const messages = [
   },
   {
     id: "m0014-uuid",
-    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000010",
-    senderId: "agent_004",
+    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000001",
+    senderId: "agent_001",
     clientMessageId: "cli_014",
     type: "text",
     content: { text: "Refund initiated, 5-7 days" },
@@ -332,8 +349,8 @@ export const messages = [
   },
   {
     id: "m0015-uuid",
-    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000010",
-    senderId: "user_010",
+    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000001",
+    senderId: "user_002",
     clientMessageId: "cli_015",
     type: "text",
     content: { text: "Thanks, noted!" },
@@ -356,8 +373,8 @@ export const messages = [
   },
   {
     id: "m0017-uuid",
-    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000004",
-    senderId: "user_004",
+    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000001",
+    senderId: "user_002",
     clientMessageId: "cli_017",
     type: "text",
     content: { text: "All done!" },
@@ -368,8 +385,8 @@ export const messages = [
   },
   {
     id: "m0018-uuid",
-    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000005",
-    senderId: "user_005",
+    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000001",
+    senderId: "user_001",
     clientMessageId: "cli_018",
     type: "text",
     content: { text: "Verified, thanks agent" },
@@ -380,8 +397,8 @@ export const messages = [
   },
   {
     id: "m0019-uuid",
-    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000008",
-    senderId: "user_008",
+    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000001",
+    senderId: "user_001",
     clientMessageId: "cli_019",
     type: "text",
     content: { text: "Any update?" },
@@ -392,8 +409,8 @@ export const messages = [
   },
   {
     id: "m0020-uuid",
-    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000006",
-    senderId: "user_006",
+    conversationId: "c1a11111-aaaa-4aaa-bbbb-000000000001",
+    senderId: "user_002",
     clientMessageId: "cli_020",
     type: "file",
     content: { filename: "schema.pdf", url: "https://example.com/schema.pdf" },
