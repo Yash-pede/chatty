@@ -5,6 +5,11 @@ import { eq } from "drizzle-orm";
 import { clerkClient } from "@clerk/express";
 
 export const userDao = {
+  getUserById: async (id: string) => {
+    return db.query.users.findFirst({
+      where: eq(users.id, id),
+    });
+  },
   createUser: async (data: InsertUser) => {
     return db.insert(users).values(data);
   },
@@ -28,4 +33,14 @@ export const userDao = {
     });
   },
   getAllRoles: async () => await db.select().from(roles),
+  getIsUserDeleted: async (id: string) => {
+    const userData = await db
+      .select({
+        id: users.id,
+        deleted: users.deleted,
+      })
+      .from(users)
+      .where(eq(users.id, id));
+    return userData[0].deleted;
+  },
 };

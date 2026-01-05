@@ -2,12 +2,6 @@ import { InsertUser } from "./user.type.js";
 import { userDao } from "@/modules/user/user.dao.js";
 import { BadRequestError } from "@/core/errors/AppError.js";
 
-const cleanUpdateData = (data: Partial<InsertUser>) => {
-  return Object.fromEntries(
-    Object.entries(data).filter(([_, value]) => value !== undefined),
-  );
-};
-
 export const createUser = async (data: InsertUser & { role: string }) => {
   const roles = await userDao.getAllRoles();
 
@@ -26,16 +20,17 @@ export const createUser = async (data: InsertUser & { role: string }) => {
   return { success: true };
 };
 
+export const getUserById = async (id: string) => userDao.getUserById(id);
+
 export const updateUser = async (
   data: Partial<InsertUser> & { id: string },
 ) => {
-  const filteredData = cleanUpdateData(data);
-
-  const { id, ...updateFields } = filteredData;
-
-  return await userDao.updateUser(id as string, updateFields);
+  const userData = await getUserById(data.id);
+  if (!userData || !userData.id) throw new BadRequestError("Invalid id");
+  if (await userDao.getIsUserDeleted(userData.id))
+    throw new BadRequestError("User Deleted");
+  return userDao.updateUser(userData.id, data);
 };
 
-export const deleteUser = async (clerkId: string) => {
-  return await userDao.deleteUser(clerkId);
-};
+export const deleteUser = async (clerkId: string) =>
+  userDao.deleteUser(clerkId);
