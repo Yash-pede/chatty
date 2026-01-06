@@ -12,9 +12,11 @@
   "dependencies": {
     "@clerk/clerk-react": "^5.59.2",
     "@repo/ui": "workspace:*",
+    "@tanstack/react-query": "^5.90.16",
     "@tanstack/react-router": "^1.141.6",
     "@tanstack/react-router-devtools": "^1.141.6",
     "@tanstack/zod-adapter": "^1.144.0",
+    "axios": "^1.13.2",
     "lucide-react": "catalog:",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
@@ -22,6 +24,7 @@
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
+    "@tanstack/eslint-plugin-query": "^5.91.2",
     "@tanstack/router-plugin": "^1.141.7",
     "@types/react": "catalog:react19",
     "@types/react-dom": "catalog:react19",

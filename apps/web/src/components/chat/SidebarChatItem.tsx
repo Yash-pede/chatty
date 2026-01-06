@@ -14,9 +14,8 @@ import { MoreVertical } from "lucide-react";
 
 const SidebarChatItem = () => {
   return (
-    <SidebarMenuItem className="group/chat-item">
+    <SidebarMenuItem className="group/chat-item" suppressHydrationWarning>
       <SidebarMenuButton className="h-auto p-0">
-        {/* Card is VISUAL ONLY */}
         <Card className="w-full border-none bg-transparent shadow-none px-3 py-2">
           <div className="flex items-center gap-3">
             {/* Avatar */}

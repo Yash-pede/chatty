@@ -14,14 +14,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/components/dropdown-menu";
-
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@repo/ui/components/avatar";
 import { LogOut, Moon, MoreHorizontalIcon, Sun } from "lucide-react";
-import { useClerk } from "@clerk/clerk-react";
+import { useClerk, UserButton } from "@clerk/clerk-react";
 import { useTheme } from "@repo/ui/components/providers/theme-provider";
 import { Button } from "@repo/ui/components/button";
 
@@ -36,12 +30,7 @@ const CustomSidebarFooter = () => {
           <DropdownMenu>
             <SidebarMenuButton className="h-auto px-3 py-2">
               <div className="flex items-center gap-3 w-full">
-                {/* Avatar */}
-                <Avatar className="h-9 w-9">
-                  <AvatarImage src="/avatar.png" />
-                  <AvatarFallback>YP</AvatarFallback>
-                </Avatar>
-
+                <UserButton />
                 {/* User info */}
                 <div className="flex-1 text-left leading-tight">
                   <p className="text-sm font-medium">Yash Pede</p>

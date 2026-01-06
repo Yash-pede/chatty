@@ -10,6 +10,16 @@ import webhookRouter from "@/modules/webhook/webhook.router.js";
 
 export const app = express();
 
+app.use(
+  cors({
+    origin: "*",
+    // credentials: true,
+  }),
+);
+
+app.use(requestLogger);
+app.use(clerkMiddleware());
+
 app.disable("x-powered-by");
 // WEBHOOKS
 app.use(webhookRouter);
@@ -18,17 +28,12 @@ app.get("/health", (_, res) => {
   res.status(200).send("ok");
 });
 
-app.use(requestLogger);
-
 app.get("/", async (req, res) => {
   logger.info("THE SERVER IS UP AND HEALTHY");
   res.status(200).send("THE SERVER IS UP AND HEALTHY");
 });
 
-app.use(cors());
 app.use(express.json());
-
-app.use(clerkMiddleware());
 
 registerRoutes(app);
 

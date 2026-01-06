@@ -10,12 +10,13 @@ export function ClerkWrapper({ children }: { children: React.ReactNode }) {
 }
 
 export function useClerkAuth() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn, isLoaded, getToken } = useAuth();
   const { user } = useUser();
 
   return {
     isAuthenticated: isSignedIn,
-    user: user ? user : null,
+    user: user,
     isLoading: !isLoaded,
+    getToken,
   };
 }

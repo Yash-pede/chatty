@@ -1,8 +1,8 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
+import { getUserByIdController } from "@/modules/user/user.controller.js";
 
 const router = Router();
-router.get("/", (req: Request, res: Response) => {
-  res.send("Welcome");
-});
+
+router.get("/:userId", getUserByIdController);
 
 export default router;
