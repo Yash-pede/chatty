@@ -1,8 +1,9 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
+import { getUserByIdController } from "@/modules/user/user.controller.js";
+import { validateUserIdMiddleware } from "@/middlewares/validateUserId.middleware.js";
 
 const router = Router();
-router.get("/", (req: Request, res: Response) => {
-  res.send("Welcome");
-});
+
+router.get("/:userId", validateUserIdMiddleware, getUserByIdController);
 
 export default router;
