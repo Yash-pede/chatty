@@ -1,6 +1,6 @@
 import { InsertUser } from "@/modules/user/user.type.js";
 import db from "@/config/db.drizzle.js";
-import { roles, userRoles, users } from "@/config/database/schema.js";
+import { roles, userRoles, users } from "@repo/db/schema";
 import { eq } from "drizzle-orm";
 import { clerkClient } from "@clerk/express";
 

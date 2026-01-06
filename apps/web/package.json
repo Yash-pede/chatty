@@ -12,6 +12,7 @@
   "dependencies": {
     "@clerk/clerk-react": "^5.59.2",
     "@repo/ui": "workspace:*",
+    "@repo/db": "workspace:*",
     "@tanstack/react-query": "^5.90.16",
     "@tanstack/react-router": "^1.141.6",
     "@tanstack/react-router-devtools": "^1.141.6",

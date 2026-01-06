@@ -25,10 +25,9 @@ export const Route = createFileRoute("/_authenticated/")({
 
 function RouteComponent() {
   const { userData } = Route.useLoaderData();
-  console.log(userData);
   return (
     <>
-      <AppSidebar />
+      <AppSidebar userData={userData} />
       <main></main>
     </>
   );

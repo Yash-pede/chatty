@@ -1,5 +1,3 @@
-// components/sidebar/custom-sidebar-footer.tsx
-
 import {
   SidebarFooter,
   SidebarMenu,
@@ -18,11 +16,12 @@ import { LogOut, Moon, MoreHorizontalIcon, Sun } from "lucide-react";
 import { useClerk, UserButton } from "@clerk/clerk-react";
 import { useTheme } from "@repo/ui/components/providers/theme-provider";
 import { Button } from "@repo/ui/components/button";
+import { User } from "@repo/db/types";
 
-const CustomSidebarFooter = () => {
+const CustomSidebarFooter = ({ userData }: { userData: User }) => {
   const { signOut } = useClerk();
   const { theme, setTheme } = useTheme();
-
+  console.log("LODA", userData);
   return (
     <SidebarFooter>
       <SidebarMenu>
@@ -33,9 +32,11 @@ const CustomSidebarFooter = () => {
                 <UserButton />
                 {/* User info */}
                 <div className="flex-1 text-left leading-tight">
-                  <p className="text-sm font-medium">Yash Pede</p>
+                  <p className="text-sm font-medium">
+                    {userData.firstName}&nbsp;{userData.lastName}
+                  </p>
                   <p className="text-xs text-muted-foreground truncate">
-                    yash@example.com
+                    {userData.email}
                   </p>
                 </div>
               </div>
@@ -63,7 +64,7 @@ const CustomSidebarFooter = () => {
 
               {/* Logout */}
               <DropdownMenuItem
-                onClick={() => signOut()}
+                onClick={() => signOut({ redirectUrl: "/" })}
                 className="gap-2 text-destructive focus:text-destructive"
               >
                 <LogOut className="h-4 w-4" />

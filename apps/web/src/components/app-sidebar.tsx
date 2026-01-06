@@ -17,8 +17,9 @@ import {
 import { useEffect } from "react";
 import SidebarChatItem from "@/components/chat/SidebarChatItem.tsx";
 import CustomSidebarFooter from "@/components/chat/SidebarFooter.tsx";
+import { User } from "@repo/db/types";
 
-export function AppSidebar() {
+export function AppSidebar({ userData }: { userData: User }) {
   const { setOpenMobile, isMobile } = useSidebar();
 
   useEffect(() => {
@@ -51,7 +52,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <CustomSidebarFooter />
+      <CustomSidebarFooter userData={userData} />
     </Sidebar>
   );
 }
