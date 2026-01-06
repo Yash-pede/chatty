@@ -1,16 +1,11 @@
-import {
-  SidebarFooter,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@repo/ui/components/sidebar";
+import { SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@repo/ui/components/sidebar";
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@repo/ui/components/dropdown-menu";
 import { LogOut, Moon, MoreHorizontalIcon, Sun } from "lucide-react";
 import { useClerk, UserButton } from "@clerk/clerk-react";
@@ -21,7 +16,6 @@ import { User } from "@repo/db/types";
 const CustomSidebarFooter = ({ userData }: { userData: User }) => {
   const { signOut } = useClerk();
   const { theme, setTheme } = useTheme();
-  console.log("LODA", userData);
   return (
     <SidebarFooter>
       <SidebarMenu>
