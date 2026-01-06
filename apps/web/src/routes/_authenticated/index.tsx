@@ -5,10 +5,11 @@ import { getUserById } from "@/queries/user.queries.ts";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: RouteComponent,
-  loader: async ({ context }) => {
+  loader: async ({ context, abortController }) => {
     const userId = context.auth.user?.id;
 
     if (!userId) {
+      abortController.abort("User not Authenticated");
       throw new Error("User not authenticated");
     }
 
