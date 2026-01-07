@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
 import { api } from "@/lib/axios.ts";
-import { useSession } from "@clerk/clerk-react";
+import { useAuth, useSession } from "@clerk/clerk-react";
 
 const ClerkAxiosInterceptor = ({ children }: { children: React.ReactNode }) => {
   const { session } = useSession();
+  const { signOut } = useAuth();
 
   useEffect(() => {
     // Interceptor to add the JWT to requests
@@ -23,11 +24,24 @@ const ClerkAxiosInterceptor = ({ children }: { children: React.ReactNode }) => {
       },
     );
 
+    const respInterceptor = api.interceptors.response.use(
+      async (response) => {
+        // console.log("RESPONSE", response);
+        if (response.status === 401) {
+          await signOut({ redirectUrl: "/" });
+        }
+        return response;
+      },
+      (error) => {
+        return Promise.reject(error);
+      },
+    );
     // Cleanup function to remove the interceptor when the component unmounts or session changes
     return () => {
       api.interceptors.request.eject(interceptorId);
+      api.interceptors.response.eject(respInterceptor);
     };
-  }, [session]); // Re-run effect if the session object changes
+  }, [session, signOut]); // Re-run effect if the session object changes
 
   return <>{children}</>;
 };

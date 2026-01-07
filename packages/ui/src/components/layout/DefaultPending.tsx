@@ -1,4 +1,4 @@
-import { Spinner } from "@repo/ui/components/spinner.js";
+import { Spinner } from "../spinner.js";
 
 const DefaultPending = () => {
   return (

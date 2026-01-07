@@ -1,8 +1,8 @@
-import { InsertUser } from "@/modules/user/user.type.js";
 import db from "@/config/db.drizzle.js";
-import { roles, userRoles, users } from "@repo/db/schema";
+import { userRoles, users } from "@repo/db/schema";
 import { eq } from "drizzle-orm";
 import { clerkClient } from "@clerk/express";
+import { InsertUser } from "@repo/db/types";
 
 export const userDao = {
   getUserById: async (id: string) => {
@@ -19,10 +19,17 @@ export const userDao = {
   deleteUser: async (userId: string) => {
     return db.update(users).set({ deleted: true }).where(eq(users.id, userId));
   },
-  updateClerkPublicMetadata: async (userId: string, role = "user") => {
+  updateClerkPublicMetadata: async (
+    userId: string,
+    params: { role: string; permissions: string[] },
+    ...args: any[]
+  ) => {
+    const { role = "user", permissions = [] } = params;
     await clerkClient.users.updateUserMetadata(userId, {
       publicMetadata: {
         role,
+        permissions,
+        ...args,
       },
     });
   },
@@ -32,7 +39,6 @@ export const userDao = {
       userId,
     });
   },
-  getAllRoles: async () => await db.select().from(roles),
   getIsUserDeleted: async (id: string) => {
     const userData = await db
       .select({

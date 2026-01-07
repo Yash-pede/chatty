@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 pushd infra
 #terraform init -input=false
 echo "🚧 Applying Terraform infrastructure..."
@@ -12,6 +13,10 @@ CF_DISTRIBUTION_ID=$(terraform output -raw cloudfront_distribution_domain_id)
 CF_DISTRIBUTION_DOMAIN=$(terraform output -raw cloudfront_distribution_domain_name)
 echo "🏷️  Retrieved infrastructure outputs: $BUCKET_NAME, $CF_DISTRIBUTION_ID, $CF_DISTRIBUTION_DOMAIN"
 
+popd
+
+pushd apps/web
+pnpm run build
 popd
 
 pushd apps/web/dist

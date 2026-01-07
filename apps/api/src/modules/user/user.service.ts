@@ -1,9 +1,10 @@
-import { InsertUser } from "./user.type.js";
 import { userDao } from "@/modules/user/user.dao.js";
 import { BadRequestError } from "@/core/errors/AppError.js";
+import { InsertUser } from "@repo/db/types";
+import { rolesAndPermissionsDao } from "@/modules/roles_permissions/roles_permissions.dao.js";
 
 export const createUser = async (data: InsertUser & { role: string }) => {
-  const roles = await userDao.getAllRoles();
+  const roles = await rolesAndPermissionsDao.getAllRoles();
 
   const targetRole =
     roles.find((r) => r.name === data.role) ||
@@ -14,8 +15,18 @@ export const createUser = async (data: InsertUser & { role: string }) => {
 
   await userDao.createUser(data);
   await userDao.setUserRole(targetRole.id, data.id);
+  const permissions = await rolesAndPermissionsDao.getRolePermissions(
+    targetRole.id,
+  );
+  const permissionIds = permissions.map((p) => p.permissionId);
+  const permissionNames = await rolesAndPermissionsDao.getPermissions(
+    ...permissionIds,
+  );
 
-  await userDao.updateClerkPublicMetadata(data.id, targetRole.name);
+  await userDao.updateClerkPublicMetadata(data.id, {
+    role: targetRole.name,
+    permissions: permissionNames.map((p) => p.key),
+  });
 
   return { success: true };
 };

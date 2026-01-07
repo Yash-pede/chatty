@@ -4,8 +4,8 @@ import {
   EmptyDescription,
   EmptyHeader,
   EmptyTitle,
-} from "@repo/ui/components/empty.js";
-import { Button } from "@repo/ui/components/button.js";
+} from "../empty.js";
+import { Button } from "../button.js";
 import { Link } from "@tanstack/react-router";
 
 export function DefaultNotFoundPage() {

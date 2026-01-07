@@ -1,14 +1,11 @@
-import { Response, Request } from "express";
+import { Request, Response } from "express";
 import { Webhook } from "svix";
 import { asyncHandler } from "@/core/asyncHandler.js";
-import {
-  createUser,
-  deleteUser,
-  updateUser,
-} from "@/modules/user/user.service.js";
+import { createUser, deleteUser, updateUser } from "@/modules/user/user.service.js";
 import { logger } from "@/core/logger.js";
-import { InsertUser } from "@/modules/user/user.type.js";
 import { env } from "@/config/env.js";
+import { InsertUser } from "@repo/db/types";
+import { createConversationWithParticipants } from "@/modules/conversations/conversations.service.js";
 
 export const getClerkController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -73,10 +70,30 @@ export const getClerkController = asyncHandler(
       updatedAt: new Date(clerkUser.updated_at),
     };
 
+    const agentId = clerkUser.unsafe_metadata?.agent_id;
+
     switch (actionType) {
       case "user.created":
         logger.info(`Creating User: ${clerkUser.id}`);
         await createUser(userData);
+        if (agentId)
+          await createConversationWithParticipants(
+            {
+              type: "direct",
+              assignedAgentId: agentId,
+              createdBy: clerkUser.id,
+            },
+            [
+              {
+                userId: clerkUser.id,
+                role: "member",
+              },
+              {
+                userId: agentId,
+                role: "owner",
+              },
+            ],
+          );
         return res
           .status(201)
           .json({ status: "success", message: "User created" });

@@ -1,5 +1,4 @@
-// path to a file with schema you want to reset
-import * as schema from "@/config/database/schema.js";
+import * as schema from "@repo/db/schema";
 import { reset } from "drizzle-seed";
 import db from "@/config/db.drizzle.js";
 
