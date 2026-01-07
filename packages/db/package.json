@@ -16,15 +16,24 @@
     }
   },
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "drizzle:studio": "pnpm drizzle-kit studio --port 4000 --verbose",
+    "drizzle:push": "pnpm drizzle-kit push --verbose",
+    "drizzle:generate": "pnpm drizzle-kit generate",
+    "drizzle:migrate": "pnpm drizzle-kit migrate"
   },
   "dependencies": {
+    "dotenv": "^17.2.3",
     "drizzle-orm": "^0.45.1",
-    "pg": "^8.11.5"
+    "pg": "^8.16.3"
   },
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/pg": "^8.16.0",
+    "drizzle-kit": "^0.31.8",
     "tsup": "^8.0.1",
-    "typescript": "catalog:",
-    "@repo/typescript-config": "workspace:*"
+    "tsx": "^4.21.0",
+    "typescript": "catalog:"
   }
 }

@@ -1,9 +1,5 @@
 import db from "@/config/db.drizzle.js";
-import {
-  permissions,
-  rolePermissions,
-  roles,
-} from "@/config/database/schema.js";
+import { permissions, rolePermissions, roles } from "@repo/db/schema";
 import { logger } from "@/core/logger.js";
 
 const ROLE_NAMES = ["user", "agent", "moderator", "admin"] as const;

@@ -12,8 +12,8 @@ export default defineConfig({
   migrations: {
     schema: "public",
   },
-  out: "../../package/db/migrations",
-  schema: "../../package/db/schema.ts",
+  out: "./drizzle",
+  schema: "./src/schema.ts",
   strict: true,
   verbose: true,
 });

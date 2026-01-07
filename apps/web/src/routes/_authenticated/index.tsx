@@ -28,7 +28,7 @@ function RouteComponent() {
   const { userData } = Route.useLoaderData();
   return (
     <>
-      <AppSidebar userData={userData} />
+      <AppSidebar userData={userData.data} />
       <main></main>
     </>
   );
