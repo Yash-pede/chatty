@@ -20,7 +20,7 @@ function SignUpComponent() {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <SignUp
-        signInUrl={`/sign-in?role=${role}&agentId=${agentId}`}
+        signInUrl={`/sign-in?role=${role}${agentId ? `&agentId=${agentId}` : ""}`}
         unsafeMetadata={{ role, agent_id: agentId }}
       />
       {/*<p>{JSON.stringify({ role, agentId })}</p>*/}
