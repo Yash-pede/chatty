@@ -1,8 +1,14 @@
 import { Spinner } from "../spinner.js";
+import { cn } from "@repo/ui/lib/utils";
 
-const DefaultPending = () => {
+const DefaultPending = ({ className }: { className?: string }) => {
   return (
-    <div className="flex items-center justify-center min-h-screen min-w-svw">
+    <div
+      className={cn(
+        "flex items-center justify-center h-screen w-svw",
+        className,
+      )}
+    >
       <Spinner />
     </div>
   );

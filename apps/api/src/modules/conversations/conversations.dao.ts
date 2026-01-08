@@ -3,10 +3,15 @@ import {
   InsertConversation,
   InsertConversationParticipants,
 } from "@repo/db/types";
-import { conversationParticipants, conversations } from "@repo/db/schema";
+import {
+  conversationParticipants,
+  conversations,
+  users,
+} from "@repo/db/schema";
 import { logger } from "@/core/logger.js";
 import db from "@/config/db.drizzle.js";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, ne } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 
 export const conversationsDao = {
   createConversation: async (
@@ -26,7 +31,36 @@ export const conversationsDao = {
     logger.info("Creating conversation participant participant");
     return db.insert(conversationParticipants).values(data);
   },
-  getConversationsByUserId: async (userId: string) => {
+  getConversationsByUserIdWithParticipants: async (userId: string) => {
+    // return db
+    //   .select({
+    //     conversationId: conversations.id,
+    //     type: conversations.type,
+    //     name: conversations.name,
+    //     isClosed: conversations.isClosed,
+    //
+    //     lastMessagePreview: conversations.lastMessagePreview,
+    //     lastMessageAt: conversations.lastMessageAt,
+    //
+    //     unreadCount: conversationParticipants.unreadCount,
+    //     muted: conversationParticipants.muted,
+    //     notificationsEnabled: conversationParticipants.notificationsEnabled,
+    //
+    //     assignedAgentId: conversations.assignedAgentId,
+    //     joinedAt: conversationParticipants.joinedAt,
+    //   })
+    //   .from(conversationParticipants)
+    //   .innerJoin(
+    //     conversations,
+    //     eq(conversations.id, conversationParticipants.conversationId),
+    //   )
+    //   .where(eq(conversationParticipants.userId, userId))
+    //   .orderBy(desc(conversations.lastMessageAt))
+    //   .limit(50);
+
+    const cpMe = conversationParticipants;
+    const cpOther = alias(conversationParticipants, "cp_other");
+
     return db
       .select({
         conversationId: conversations.id,
@@ -37,19 +71,32 @@ export const conversationsDao = {
         lastMessagePreview: conversations.lastMessagePreview,
         lastMessageAt: conversations.lastMessageAt,
 
-        unreadCount: conversationParticipants.unreadCount,
-        muted: conversationParticipants.muted,
-        notificationsEnabled: conversationParticipants.notificationsEnabled,
+        unreadCount: cpMe.unreadCount,
+        muted: cpMe.muted,
+        notificationsEnabled: cpMe.notificationsEnabled,
+        joinedAt: cpMe.joinedAt,
 
         assignedAgentId: conversations.assignedAgentId,
-        joinedAt: conversationParticipants.joinedAt,
+
+        otherUser: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          userName: users.username,
+          imageUrl: users.imageUrl,
+        },
       })
-      .from(conversationParticipants)
+      .from(cpMe)
+      .innerJoin(conversations, eq(conversations.id, cpMe.conversationId))
       .innerJoin(
-        conversations,
-        eq(conversations.id, conversationParticipants.conversationId),
+        cpOther,
+        and(
+          eq(cpOther.conversationId, conversations.id),
+          ne(cpOther.userId, userId),
+        ),
       )
-      .where(eq(conversationParticipants.userId, userId))
+      .innerJoin(users, eq(users.id, cpOther.userId))
+      .where(eq(cpMe.userId, userId))
       .orderBy(desc(conversations.lastMessageAt))
       .limit(50);
   },

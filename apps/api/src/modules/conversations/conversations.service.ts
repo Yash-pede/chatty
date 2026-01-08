@@ -25,6 +25,8 @@ export const createConversationParticipants = async (
   return conversationsDao.createConversationParticipant(data);
 };
 
-export const getAllUserConversations = async (userId: string) => {
-  return conversationsDao.getConversationsByUserId(userId);
+export const getConversationsByUserIdWithParticipants = async (
+  userId: string,
+) => {
+  return conversationsDao.getConversationsByUserIdWithParticipants(userId);
 };

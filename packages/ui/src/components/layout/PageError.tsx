@@ -1,5 +1,3 @@
-// apps/web/src/components/ComponentError.tsx
-
 import * as React from "react";
 import { ErrorComponentProps } from "@tanstack/react-router";
 import {
@@ -16,7 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from "../alert.js";
 import { ScrollArea } from "../scroll-area.js";
 import { LucideCalendarMinus, RotateCcw } from "lucide-react";
 
-export function ComponentError(props: ErrorComponentProps) {
+export function PageError(props: ErrorComponentProps) {
   const { error, reset, info } = props;
 
   const [showDetails, setShowDetails] = React.useState(false);

@@ -18,13 +18,37 @@ import { useEffect } from "react";
 import SidebarChatItem from "@/components/chat/SidebarChatItem.tsx";
 import CustomSidebarFooter from "@/components/chat/SidebarFooter.tsx";
 import { User } from "@repo/db/types";
+import { useQuery } from "@tanstack/react-query";
+import { getAllUserConversations } from "@/queries/conversation.queries.ts";
+import DefaultPending from "@repo/ui/components/layout/DefaultPending";
+import { DefaultError } from "@repo/ui/components/layout/DefaultError";
 
 export function AppSidebar({ userData }: { userData: User }) {
   const { setOpenMobile, isMobile } = useSidebar();
 
+  const { error, isPending, data, refetch, isRefetching, isRefetchError } =
+    useQuery({
+      queryKey: ["conversations", userData.id],
+      queryFn: () => getAllUserConversations(userData.id),
+    });
+
   useEffect(() => {
     if (isMobile) setOpenMobile(true);
   }, [isMobile, setOpenMobile]);
+
+  if (isPending || isRefetching)
+    return (
+      <Sidebar variant="floating">
+        <DefaultPending className={"h-full w-full"} />
+      </Sidebar>
+    );
+
+  if (error || isRefetchError || !data)
+    return (
+      <Sidebar variant="floating">
+        <DefaultError error={error} onRetry={refetch} />
+      </Sidebar>
+    );
 
   return (
     <Sidebar variant="floating">
@@ -47,7 +71,12 @@ export function AppSidebar({ userData }: { userData: User }) {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarChatItem />
+              {data.map((conversation) => (
+                <SidebarChatItem
+                  key={conversation.conversationId}
+                  conversation={conversation}
+                />
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

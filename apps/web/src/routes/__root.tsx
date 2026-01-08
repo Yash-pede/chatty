@@ -2,7 +2,7 @@ import * as React from "react";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { useClerkAuth } from "@/auth/clerk.tsx";
 import { DefaultNotFoundPage } from "@repo/ui/components/layout/NotFound";
-import { ComponentError } from "@repo/ui/components/layout/ComponentError";
+import { PageError } from "@repo/ui/components/layout/PageError";
 import { QueryClient } from "@tanstack/react-query";
 
 interface RouterContext {
@@ -13,7 +13,7 @@ interface RouterContext {
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootComponent,
   notFoundComponent: DefaultNotFoundPage,
-  errorComponent: ComponentError,
+  errorComponent: PageError,
 });
 
 function RootComponent() {

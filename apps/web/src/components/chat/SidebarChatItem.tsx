@@ -11,8 +11,14 @@ import {
   AvatarImage,
 } from "@repo/ui/components/avatar";
 import { MoreVertical } from "lucide-react";
+import { ConversationWithOtherUser } from "@repo/db/types";
+import dayjs from "dayjs";
 
-const SidebarChatItem = () => {
+const SidebarChatItem = ({
+  conversation,
+}: {
+  conversation: ConversationWithOtherUser;
+}) => {
   return (
     <SidebarMenuItem className="group/chat-item" suppressHydrationWarning>
       <SidebarMenuButton className="h-auto p-0">
@@ -33,15 +39,26 @@ const SidebarChatItem = () => {
             <div className="flex-1 overflow-hidden">
               <div className="flex items-center justify-between">
                 <p className="truncate text-sm font-medium max-w-3/4">
-                  Jacquenetta Slowgrave
+                  {conversation.type === "direct" ? (
+                    <>
+                      {conversation.otherUser.firstName}
+                      {"\u00A0"}
+                      {conversation.otherUser.lastName}
+                    </>
+                  ) : (
+                    conversation.name
+                  )}{" "}
                 </p>
                 <span className="text-xs text-muted-foreground">
-                  10 minutes
+                  {conversation.lastMessageAt &&
+                    dayjs(conversation.lastMessageAt).format("MM-DDThh:mm:")}
+                  10 minutes ago
                 </span>
               </div>
 
               <p className="truncate text-xs text-muted-foreground">
-                Great! Looking forward to it. Lorem
+                {conversation.lastMessagePreview ??
+                  "Send your first message 😊"}{" "}
               </p>
             </div>
           </div>
