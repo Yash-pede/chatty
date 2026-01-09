@@ -17,7 +17,7 @@ export function NewChatDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem>New chat</DropdownMenuItem>
-        <DropdownMenuItem>Create group</DropdownMenuItem>
+        <DropdownMenuItem disabled>Create group</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

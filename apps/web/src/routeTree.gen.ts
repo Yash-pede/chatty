@@ -8,17 +8,17 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as SignUpRouteImport } from './routes/sign-up'
-import { Route as SignInRouteImport } from './routes/sign-in'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
-import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as SignUpRouteImport } from "./routes/sign-up";
+import { Route as SignInRouteImport } from "./routes/sign-in";
+import { Route as AuthenticatedRouteImport } from "./routes/_authenticated";
+import { Route as AuthenticatedChatLayoutRouteImport } from "./routes/_authenticated/chat/_layout";
 
 const SignUpRoute = SignUpRouteImport.update({
-  id: '/sign-up',
-  path: '/sign-up',
+  id: "/sign-up",
+  path: "/sign-up",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
@@ -28,41 +28,41 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthenticatedChatLayoutRoute = AuthenticatedChatLayoutRouteImport.update({
+  id: "/chat/_layout",
+  path: "/chat",
   getParentRoute: () => AuthenticatedRoute,
-} as any)
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/sign-in': typeof SignInRoute
-  '/sign-up': typeof SignUpRoute
-  '/': typeof AuthenticatedIndexRoute
+  "/sign-in": typeof SignInRoute;
+  "/sign-up": typeof SignUpRoute;
+  "/chat": typeof AuthenticatedChatLayoutRoute;
 }
 export interface FileRoutesByTo {
-  '/sign-in': typeof SignInRoute
-  '/sign-up': typeof SignUpRoute
-  '/': typeof AuthenticatedIndexRoute
+  "/sign-in": typeof SignInRoute;
+  "/sign-up": typeof SignUpRoute;
+  "/chat": typeof AuthenticatedChatLayoutRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/_authenticated': typeof AuthenticatedRouteWithChildren
-  '/sign-in': typeof SignInRoute
-  '/sign-up': typeof SignUpRoute
-  '/_authenticated/': typeof AuthenticatedIndexRoute
+  __root__: typeof rootRouteImport;
+  "/_authenticated": typeof AuthenticatedRouteWithChildren;
+  "/sign-in": typeof SignInRoute;
+  "/sign-up": typeof SignUpRoute;
+  "/_authenticated/chat/_layout": typeof AuthenticatedChatLayoutRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/sign-in' | '/sign-up' | '/'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/sign-in' | '/sign-up' | '/'
+  fileRoutesByFullPath: FileRoutesByFullPath;
+  fullPaths: "/sign-in" | "/sign-up" | "/chat";
+  fileRoutesByTo: FileRoutesByTo;
+  to: "/sign-in" | "/sign-up" | "/chat";
   id:
-    | '__root__'
-    | '/_authenticated'
-    | '/sign-in'
-    | '/sign-up'
-    | '/_authenticated/'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/_authenticated"
+    | "/sign-in"
+    | "/sign-up"
+    | "/_authenticated/chat/_layout";
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
@@ -72,44 +72,44 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/sign-up': {
-      id: '/sign-up'
-      path: '/sign-up'
-      fullPath: '/sign-up'
-      preLoaderRoute: typeof SignUpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sign-in': {
-      id: '/sign-in'
-      path: '/sign-in'
-      fullPath: '/sign-in'
-      preLoaderRoute: typeof SignInRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated': {
-      id: '/_authenticated'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof AuthenticatedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/': {
-      id: '/_authenticated/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
+    "/sign-up": {
+      id: "/sign-up";
+      path: "/sign-up";
+      fullPath: "/sign-up";
+      preLoaderRoute: typeof SignUpRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/sign-in": {
+      id: "/sign-in";
+      path: "/sign-in";
+      fullPath: "/sign-in";
+      preLoaderRoute: typeof SignInRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/_authenticated": {
+      id: "/_authenticated";
+      path: "";
+      fullPath: "";
+      preLoaderRoute: typeof AuthenticatedRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/_authenticated/chat/_layout": {
+      id: "/_authenticated/chat/_layout";
+      path: "/chat";
+      fullPath: "/chat";
+      preLoaderRoute: typeof AuthenticatedChatLayoutRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
   }
 }
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedChatLayoutRoute: typeof AuthenticatedChatLayoutRoute;
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
-}
+  AuthenticatedChatLayoutRoute: AuthenticatedChatLayoutRoute,
+};
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,

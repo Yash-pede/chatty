@@ -1,10 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { AppSidebar } from "@/components/app-sidebar.tsx";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import DefaultPending from "@repo/ui/components/layout/DefaultPending";
 import { getUserById } from "@/queries/user.queries.ts";
+import { AppSidebar } from "@/components/app-sidebar.tsx";
 
-export const Route = createFileRoute("/_authenticated/")({
+export const Route = createFileRoute("/_authenticated/chat/_layout")({
   component: RouteComponent,
+  pendingComponent: () => <DefaultPending />,
   loader: async ({ context, abortController }) => {
     const userId = context.auth.user?.id;
 
@@ -20,8 +21,6 @@ export const Route = createFileRoute("/_authenticated/")({
 
     return { userData };
   },
-
-  pendingComponent: () => <DefaultPending />,
 });
 
 function RouteComponent() {
@@ -29,7 +28,9 @@ function RouteComponent() {
   return (
     <>
       <AppSidebar userData={userData.data} />
-      <main></main>
+      <main>
+        <Outlet />
+      </main>
     </>
   );
 }

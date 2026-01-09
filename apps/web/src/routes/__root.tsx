@@ -1,5 +1,9 @@
 import * as React from "react";
-import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
+import {
+  createRootRouteWithContext,
+  Outlet,
+  redirect,
+} from "@tanstack/react-router";
 import { useClerkAuth } from "@/auth/clerk.tsx";
 import { DefaultNotFoundPage } from "@repo/ui/components/layout/NotFound";
 import { PageError } from "@repo/ui/components/layout/PageError";
@@ -11,6 +15,11 @@ interface RouterContext {
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
+  beforeLoad: async ({ location }) => {
+    if (location.pathname === "/") {
+      throw redirect({ to: "/chat" });
+    }
+  },
   component: RootComponent,
   notFoundComponent: DefaultNotFoundPage,
   errorComponent: PageError,
