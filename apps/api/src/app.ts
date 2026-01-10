@@ -7,8 +7,12 @@ import { errorMiddleware } from "@/middlewares/error.middleware.js";
 import { registerRoutes } from "@/routes.js";
 import { logger } from "@/core/logger.js";
 import webhookRouter from "@/modules/webhook/webhook.router.js";
+import http from "http";
+import { socketServer } from "@/ws/socket.instance.js";
 
-export const app = express();
+const app = express();
+export const server = http.createServer(app);
+socketServer.init(server);
 
 app.use(
   cors({

@@ -2,6 +2,9 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 import DefaultPending from "@repo/ui/components/layout/DefaultPending";
 import { getUserById } from "@/queries/user.queries.ts";
 import { AppSidebar } from "@/components/app-sidebar.tsx";
+import { useSocket } from "@/hooks/useSocket.ts";
+import { getSocket } from "@/ws/socket.ts";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/_authenticated/chat/_layout")({
   component: RouteComponent,
@@ -25,6 +28,15 @@ export const Route = createFileRoute("/_authenticated/chat/_layout")({
 
 function RouteComponent() {
   const { userData } = Route.useLoaderData();
+  useSocket();
+  useEffect(() => {
+    try {
+      const socket = getSocket();
+      socket.emit("typing", { userId: userData.data.id });
+    } catch {
+      // socket not ready yet – ignore
+    }
+  }, [userData.data.id]);
   return (
     <>
       <AppSidebar userData={userData.data} />
