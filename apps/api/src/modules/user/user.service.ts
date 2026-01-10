@@ -2,6 +2,7 @@ import { userDao } from "@/modules/user/user.dao.js";
 import { BadRequestError } from "@/core/errors/AppError.js";
 import { InsertUser } from "@repo/db/types";
 import { rolesAndPermissionsDao } from "@/modules/roles_permissions/roles_permissions.dao.js";
+import { clerkClient } from "@clerk/express";
 
 export const createUser = async (data: InsertUser & { role: string }) => {
   const roles = await rolesAndPermissionsDao.getAllRoles();
@@ -45,3 +46,7 @@ export const updateUser = async (
 
 export const deleteUser = async (clerkId: string) =>
   userDao.deleteUser(clerkId);
+
+export const updateClerkUser = async (userId: string, params: any) => {
+  return await clerkClient.users.updateUser(userId, params)
+}
