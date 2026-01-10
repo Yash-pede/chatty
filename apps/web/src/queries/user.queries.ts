@@ -8,3 +8,11 @@ export async function getUserById(userId: string) {
     data: User;
   };
 }
+
+export async function updateClerkUserById(userId: string, params: any) {
+  const res = await api.patch(`/users/update-user/${userId}`, params);
+  return res.data as {
+    success: boolean;
+    data: any;
+  };
+}

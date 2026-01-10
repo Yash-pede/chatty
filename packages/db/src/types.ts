@@ -36,3 +36,8 @@ export type ConversationWithOtherUser = {
 //USERS
 export type User = InferSelectModel<typeof users>;
 export type InsertUser = InferInsertModel<typeof users>;
+export type ClerkUserUpdate = {
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+};

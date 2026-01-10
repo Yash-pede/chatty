@@ -7,68 +7,79 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@repo/ui/components/dropdown-menu";
-import { LogOut, Moon, MoreHorizontalIcon, Sun } from "lucide-react";
+import { LogOut, Moon, MoreHorizontalIcon, Settings, Sun } from "lucide-react";
 import { useClerk, UserButton } from "@clerk/clerk-react";
 import { useTheme } from "@repo/ui/components/providers/theme-provider";
 import { Button } from "@repo/ui/components/button";
 import { User } from "@repo/db/types";
+import { useState } from "react";
+import { SettingsSheet } from "../Settings";
 
 const CustomSidebarFooter = ({ userData }: { userData: User }) => {
   const { signOut } = useClerk();
   const { theme, setTheme } = useTheme();
+  const [settingsOpen, setSettingsOpen] = useState(false)
   return (
-    <SidebarFooter>
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <DropdownMenu>
-            <SidebarMenuButton className="h-auto px-3 py-2">
-              <div className="flex items-center gap-3 w-full">
-                <UserButton />
-                {/* User info */}
-                <div className="flex-1 text-left leading-tight">
-                  <p className="text-sm font-medium">
-                    {userData.firstName}&nbsp;{userData.lastName}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {userData.email}
-                  </p>
+    <>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <SidebarMenuButton className="h-auto px-3 py-2">
+                <div className="flex items-center gap-3 w-full">
+                  <UserButton />
+                  {/* User info */}
+                  <div className="flex-1 text-left leading-tight">
+                    <p className="text-sm font-medium">
+                      {userData.firstName}&nbsp;{userData.lastName}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {userData.email}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" aria-label="Open menu" size="icon-sm">
-                  <MoreHorizontalIcon />
-                </Button>
-              </DropdownMenuTrigger>
-            </SidebarMenuButton>
-            <DropdownMenuContent side="top" align="start" className="w-56">
-              {/* Theme toggle */}
-              <DropdownMenuItem
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="gap-2"
-              >
-                {theme === "dark" ? (
-                  <Sun className="h-4 w-4" />
-                ) : (
-                  <Moon className="h-4 w-4" />
-                )}
-                Toggle theme
-              </DropdownMenuItem>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" aria-label="Open menu" size="icon-sm">
+                    <MoreHorizontalIcon />
+                  </Button>
+                </DropdownMenuTrigger>
+              </SidebarMenuButton>
+              <DropdownMenuContent side="top" align="start" className="w-56">
+                {/* Theme toggle */}
+                <DropdownMenuItem
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  className="gap-2"
+                >
+                  {theme === "dark" ? (
+                    <Sun className="h-4 w-4" />
+                  ) : (
+                    <Moon className="h-4 w-4" />
+                  )}
+                  Toggle theme
+                </DropdownMenuItem>
 
-              <DropdownMenuSeparator />
+                <DropdownMenuSeparator />
+                {/* Settings */}
+                <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </DropdownMenuItem>
 
-              {/* Logout */}
-              <DropdownMenuItem
-                onClick={() => signOut({ redirectUrl: "/" })}
-                className="gap-2 text-destructive focus:text-destructive"
-              >
-                <LogOut className="h-4 w-4" />
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    </SidebarFooter>
+                {/* Logout */}
+                <DropdownMenuItem
+                  onClick={() => signOut({ redirectUrl: "/" })}
+                  className="gap-2 text-destructive focus:text-destructive"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+      <SettingsSheet open={settingsOpen} onOpenChange={setSettingsOpen} />
+    </>
   );
 };
 
