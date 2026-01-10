@@ -23,7 +23,7 @@ export function DefaultNotFoundPage() {
           <Button variant="outline" onClick={() => window.history.back()}>
             Go back
           </Button>
-          <Link to={"/"}>
+          <Link to={"/chat"}>
             <Button>HOME</Button>
           </Link>
         </div>
