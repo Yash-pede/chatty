@@ -27,7 +27,7 @@ const SidebarChatItem = ({
             {/* Avatar */}
             <div className="relative">
               <Avatar className="h-10 w-10">
-                <AvatarImage src="/avatar.png" />
+                <AvatarImage src={conversation.otherUser.imageUrl ?? ""} />
                 <AvatarFallback>JS</AvatarFallback>
               </Avatar>
 

@@ -29,7 +29,7 @@ export function AppSidebar({ userData }: { userData: User }) {
   const { error, isPending, data, refetch, isRefetching, isRefetchError } =
     useQuery({
       queryKey: ["conversations", userData.id],
-      queryFn: () => getAllUserConversations(userData.id),
+      queryFn: () => getAllUserConversations(),
     });
 
   useEffect(() => {
