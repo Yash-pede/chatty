@@ -1,7 +1,10 @@
+import { queryClient } from "@/lib/queryClient"
+import { updateClerkUserById } from "@/queries/user.queries"
 import { useUser } from "@clerk/clerk-react"
 import { Button } from "@repo/ui/components/button"
 import { Input } from "@repo/ui/components/input"
 import { Label } from "@repo/ui/components/label"
+import DefaultPending from "@repo/ui/components/layout/DefaultPending"
 import {
     Sheet,
     SheetClose,
@@ -11,7 +14,9 @@ import {
     SheetHeader,
     SheetTitle,
 } from "@repo/ui/components/sheet"
+import { useMutation } from "@tanstack/react-query"
 import { useState } from "react"
+import { toast } from "sonner"
 
 export function SettingsSheet({
     open,
@@ -34,14 +39,19 @@ export function SettingsSheet({
             [name]: value,
         }));
     };
-    const handleUpdate = async () => {
-        if (!user) return;
 
-        await user?.update(userDetails)
-        await user?.reload()
-
-        alert("Profile updated successfully!") // temporarily using alert for feedback
-    }
+    const { isPending, mutate: updateClerkUser } = useMutation({
+        mutationFn: () =>
+            updateClerkUserById(user?.id || "", userDetails),
+        onSuccess: () => {
+            toast("Profile Updated")
+            onOpenChange && onOpenChange(false)
+            queryClient.invalidateQueries({ queryKey: ['conversations', user?.id] });
+        },
+        onError: () => {
+            toast.error('Failed to update profile!');
+        },
+    });
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
@@ -55,19 +65,19 @@ export function SettingsSheet({
                 <div className="grid flex-1 auto-rows-min gap-6 px-4">
                     <div className="grid gap-3">
                         <Label htmlFor="sheet-username">Username</Label>
-                        <Input id="sheet-username" name="username" value={userDetails.username} onChange={handleInputChange} />
+                        <Input id="sheet-username" name="username" disabled={isPending} value={userDetails.username} onChange={handleInputChange} />
                     </div>
                     <div className="grid gap-3">
                         <Label htmlFor="sheet-firstname">First Name</Label>
-                        <Input id="sheet-firstname" name="firstName" value={userDetails.firstName} onChange={handleInputChange} />
+                        <Input id="sheet-firstname" name="firstName" disabled={isPending} value={userDetails.firstName} onChange={handleInputChange} />
                     </div>
                     <div className="grid gap-3">
                         <Label htmlFor="sheet-lastname">Last Name</Label>
-                        <Input id="sheet-lastname" name="lastName" value={userDetails.lastName} onChange={handleInputChange} />
+                        <Input id="sheet-lastname" name="lastName" disabled={isPending} value={userDetails.lastName} onChange={handleInputChange} />
                     </div>
                 </div>
                 <SheetFooter>
-                    <Button type="button" onClick={() => handleUpdate()}>Save changes</Button>
+                    <Button type="button" onClick={() => updateClerkUser()} disabled={isPending}>{isPending ? <DefaultPending /> : 'Save changes'}</Button>
                     <SheetClose asChild>
                         <Button variant="outline">Close</Button>
                     </SheetClose>
