@@ -7,6 +7,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient.ts";
 import DefaultPending from "@repo/ui/components/layout/DefaultPending";
 import ClerkAxiosInterceptor from "@/lib/ClerkAxiosInterceptor.tsx";
+import { Toaster } from "@repo/ui/components/sonner";
 
 declare module "@tanstack/react-router" {
   interface Register {
@@ -37,6 +38,7 @@ function App() {
         <ClerkAxiosInterceptor>
           <QueryClientProvider client={queryClient}>
             <InnerApp />
+             <Toaster />
           </QueryClientProvider>
         </ClerkAxiosInterceptor>
       </ThemeProvider>
