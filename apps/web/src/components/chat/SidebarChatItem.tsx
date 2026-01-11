@@ -1,6 +1,15 @@
-import { SidebarMenuAction, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem } from "@repo/ui/components/sidebar";
+import {
+  SidebarMenuAction,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@repo/ui/components/sidebar";
 import { Card } from "@repo/ui/components/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@repo/ui/components/avatar";
 import { MoreVertical } from "lucide-react";
 import { ConversationWithOtherUser } from "@repo/db/types";
 import dayjs from "dayjs";
