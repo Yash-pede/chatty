@@ -12,7 +12,7 @@ export function clerkAuthMiddleware(
 ) {
   const auth = getAuth(req);
 
-  if (!auth.isAuthenticated) {
+  if (!auth.isAuthenticated || !auth.userId) {
     return res.status(401).send("User not authenticated");
   }
 

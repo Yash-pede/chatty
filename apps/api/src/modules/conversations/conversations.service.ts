@@ -30,3 +30,14 @@ export const getConversationsByUserIdWithParticipants = async (
 ) => {
   return conversationsDao.getConversationsByUserIdWithParticipants(userId);
 };
+
+export const getConversationById = async (
+  conversationId: string,
+  currentUserId: string,
+) => {
+  const conversation = await conversationsDao.getConversationById(
+    conversationId,
+    currentUserId,
+  );
+  return conversation[0];
+};

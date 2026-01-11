@@ -1,12 +1,14 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  useRouterState,
+} from "@tanstack/react-router";
 import DefaultPending from "@repo/ui/components/layout/DefaultPending";
 import { getUserById } from "@/queries/user.queries.ts";
-import { AppSidebar } from "@/components/app-sidebar.tsx";
 import { useSocket } from "@/hooks/useSocket.ts";
-import { getSocket } from "@/ws/socket.ts";
-import { useEffect } from "react";
+import { AppSidebar } from "@/components/app-sidebar.tsx";
 
-export const Route = createFileRoute("/_authenticated/chat/_layout")({
+export const Route = createFileRoute("/_authenticated/chat")({
   component: RouteComponent,
   pendingComponent: () => <DefaultPending />,
   loader: async ({ context, abortController }) => {
@@ -28,19 +30,18 @@ export const Route = createFileRoute("/_authenticated/chat/_layout")({
 
 function RouteComponent() {
   const { userData } = Route.useLoaderData();
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  });
+
+  const hideSidebar = pathname.match(/^\/chat\/[0-9a-f-]{36}$/);
+
   useSocket();
-  useEffect(() => {
-    try {
-      const socket = getSocket();
-      socket.emit("typing", { userId: userData.data.id });
-    } catch {
-      // socket not ready yet – ignore
-    }
-  }, [userData.data.id]);
   return (
     <>
-      <AppSidebar userData={userData.data} />
-      <main>
+      {/* Conditionally render sidebar */}
+      <AppSidebar userData={userData.data} hidden={!!hideSidebar} />
+      <main className="w-full h-full">
         <Outlet />
       </main>
     </>

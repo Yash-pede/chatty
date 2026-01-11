@@ -31,33 +31,7 @@ export const conversationsDao = {
     logger.info("Creating conversation participant participant");
     return db.insert(conversationParticipants).values(data);
   },
-  getConversationsByUserIdWithParticipants: async (userId: string) => {
-    // return db
-    //   .select({
-    //     conversationId: conversations.id,
-    //     type: conversations.type,
-    //     name: conversations.name,
-    //     isClosed: conversations.isClosed,
-    //
-    //     lastMessagePreview: conversations.lastMessagePreview,
-    //     lastMessageAt: conversations.lastMessageAt,
-    //
-    //     unreadCount: conversationParticipants.unreadCount,
-    //     muted: conversationParticipants.muted,
-    //     notificationsEnabled: conversationParticipants.notificationsEnabled,
-    //
-    //     assignedAgentId: conversations.assignedAgentId,
-    //     joinedAt: conversationParticipants.joinedAt,
-    //   })
-    //   .from(conversationParticipants)
-    //   .innerJoin(
-    //     conversations,
-    //     eq(conversations.id, conversationParticipants.conversationId),
-    //   )
-    //   .where(eq(conversationParticipants.userId, userId))
-    //   .orderBy(desc(conversations.lastMessageAt))
-    //   .limit(50);
-
+  getConversationsByUserIdWithParticipants: async (currentUserId: string) => {
     const cpMe = conversationParticipants;
     const cpOther = alias(conversationParticipants, "cp_other");
 
@@ -92,12 +66,62 @@ export const conversationsDao = {
         cpOther,
         and(
           eq(cpOther.conversationId, conversations.id),
-          ne(cpOther.userId, userId),
+          ne(cpOther.userId, currentUserId),
         ),
       )
       .innerJoin(users, eq(users.id, cpOther.userId))
-      .where(eq(cpMe.userId, userId))
+      .where(eq(cpMe.userId, currentUserId))
       .orderBy(desc(conversations.lastMessageAt))
       .limit(50);
+  },
+  getConversationById: async (
+    conversationId: string,
+    currentUserId: string,
+  ) => {
+    const cpMe = conversationParticipants;
+    const cpOther = alias(conversationParticipants, "cp_other");
+
+    return db
+      .select({
+        conversationId: conversations.id,
+        type: conversations.type,
+        name: conversations.name,
+        isClosed: conversations.isClosed,
+
+        lastMessagePreview: conversations.lastMessagePreview,
+        lastMessageAt: conversations.lastMessageAt,
+
+        unreadCount: cpMe.unreadCount,
+        muted: cpMe.muted,
+        notificationsEnabled: cpMe.notificationsEnabled,
+        joinedAt: cpMe.joinedAt,
+
+        assignedAgentId: conversations.assignedAgentId,
+
+        otherUser: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          userName: users.username,
+          imageUrl: users.imageUrl,
+        },
+      })
+      .from(conversations)
+      .innerJoin(
+        cpMe,
+        and(
+          eq(cpMe.conversationId, conversations.id),
+          eq(cpMe.userId, currentUserId),
+        ),
+      )
+      .innerJoin(
+        cpOther,
+        and(
+          eq(cpOther.conversationId, conversations.id),
+          ne(cpOther.userId, currentUserId),
+        ),
+      )
+      .innerJoin(users, eq(users.id, cpOther.userId))
+      .where(eq(conversations.id, conversationId));
   },
 };

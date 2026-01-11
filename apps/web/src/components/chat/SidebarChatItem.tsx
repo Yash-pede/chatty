@@ -1,26 +1,28 @@
-import {
-  SidebarMenuAction,
-  SidebarMenuBadge,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@repo/ui/components/sidebar";
+import { SidebarMenuAction, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem } from "@repo/ui/components/sidebar";
 import { Card } from "@repo/ui/components/card";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@repo/ui/components/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/avatar";
 import { MoreVertical } from "lucide-react";
 import { ConversationWithOtherUser } from "@repo/db/types";
 import dayjs from "dayjs";
+import { useNavigate } from "@tanstack/react-router";
 
 const SidebarChatItem = ({
   conversation,
 }: {
   conversation: ConversationWithOtherUser;
 }) => {
+  const navigate = useNavigate();
+
   return (
-    <SidebarMenuItem className="group/chat-item" suppressHydrationWarning>
+    <SidebarMenuItem
+      className="group/chat-item"
+      onClick={() =>
+        navigate({
+          to: `/chat/$conversationId`,
+          params: { conversationId: conversation.conversationId },
+        })
+      }
+    >
       <SidebarMenuButton className="h-auto p-0">
         <Card className="w-full border-none bg-transparent shadow-none px-3 py-2">
           <div className="flex items-center gap-3">

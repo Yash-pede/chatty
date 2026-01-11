@@ -23,7 +23,13 @@ import { getAllUserConversations } from "@/queries/conversation.queries.ts";
 import DefaultPending from "@repo/ui/components/layout/DefaultPending";
 import { DefaultError } from "@repo/ui/components/layout/DefaultError";
 
-export function AppSidebar({ userData }: { userData: User }) {
+export function AppSidebar({
+  userData,
+  hidden = false,
+}: {
+  userData: User;
+  hidden?: boolean;
+}) {
   const { setOpenMobile, isMobile } = useSidebar();
 
   const { error, isPending, data, refetch, isRefetching, isRefetchError } =
@@ -33,8 +39,9 @@ export function AppSidebar({ userData }: { userData: User }) {
     });
 
   useEffect(() => {
-    if (isMobile) setOpenMobile(true);
-  }, [isMobile, setOpenMobile]);
+    if (hidden) setOpenMobile(false);
+    if (isMobile && !hidden) setOpenMobile(true);
+  }, [isMobile, setOpenMobile, hidden]);
 
   if (isPending || isRefetching)
     return (
@@ -43,7 +50,7 @@ export function AppSidebar({ userData }: { userData: User }) {
       </Sidebar>
     );
 
-  if (error || isRefetchError || !data)
+  if (error || isRefetchError || !data.data)
     return (
       <Sidebar variant="floating">
         <DefaultError error={error} onRetry={refetch} />
@@ -71,7 +78,7 @@ export function AppSidebar({ userData }: { userData: User }) {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {data.map((conversation) => (
+              {data.data.map((conversation) => (
                 <SidebarChatItem
                   key={conversation.conversationId}
                   conversation={conversation}

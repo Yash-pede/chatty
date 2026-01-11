@@ -1,6 +1,9 @@
 import { asyncHandler } from "@/core/asyncHandler.js";
 import { Request, Response } from "express";
-import { getConversationsByUserIdWithParticipants } from "@/modules/conversations/conversations.service.js";
+import {
+  getConversationById,
+  getConversationsByUserIdWithParticipants,
+} from "@/modules/conversations/conversations.service.js";
 import { getAuth } from "@clerk/express";
 
 export const getAllUserConversationsController = asyncHandler(
@@ -9,6 +12,23 @@ export const getAllUserConversationsController = asyncHandler(
     const conversations = await getConversationsByUserIdWithParticipants(
       auth.userId!,
     );
-    return res.status(200).json(conversations);
+    return res.status(200).json({
+      success: true,
+      data: conversations,
+    });
+  },
+);
+
+export const getConversationController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { userId } = getAuth(req);
+    const conversation = await getConversationById(
+      req.params.conversationId,
+      userId!,
+    );
+    return res.status(200).json({
+      success: true,
+      data: conversation,
+    });
   },
 );
