@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/chat/")({
 
 function RouteComponent() {
   return (
-    <Empty className="from-muted/50 to-background bg-gradient-to-b from-30% flex justify-center items-center h-[calc(100svh-1rem)] my-2">
+    <Empty className="from-muted/50 to-background bg-linear-to-b from-30% flex justify-center items-center h-[calc(100svh-1rem)] my-2">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <MessageSquareMore />

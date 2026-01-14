@@ -4,6 +4,7 @@ import {
   conversations,
   conversationTypeEnum,
   users,
+  messages
 } from "./schema.js";
 
 //CONVERSATION
@@ -41,3 +42,19 @@ export type ClerkUserUpdate = {
   lastName?: string;
   username?: string;
 };
+export type ChatUser = {
+  id: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  username?: string | null;
+  imageUrl?: string | null;
+};
+
+
+//MESSAGES
+export type ChatMessage = InferSelectModel<typeof messages>;
+export type MessageContentType = {
+    text?: string,
+    imageUrl?: string,
+    videoUrl?: string
+}
