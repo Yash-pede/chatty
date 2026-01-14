@@ -5,7 +5,6 @@ import {
 } from "@tanstack/react-router";
 import DefaultPending from "@repo/ui/components/layout/DefaultPending";
 import { getUserById } from "@/queries/user.queries.ts";
-import { useSocket } from "@/hooks/useSocket.ts";
 import { AppSidebar } from "@/components/app-sidebar.tsx";
 
 export const Route = createFileRoute("/_authenticated/chat")({
@@ -36,7 +35,6 @@ function RouteComponent() {
 
   const hideSidebar = pathname.match(/^\/chat\/[0-9a-f-]{36}$/);
 
-  useSocket();
   return (
     <>
       {/* Conditionally render sidebar */}

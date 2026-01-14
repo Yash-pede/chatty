@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import type { Server as HttpServer } from "http";
 import { clerkSocketAuth } from "@/middlewares/clerk.auth.middleware.js";
 import { logger } from "@/core/logger.js";
+import { registerMessageEvents } from "@/ws/events/message.events.js";
 
 export class SocketServer {
   private _io: Server | null = null;
@@ -24,10 +25,9 @@ export class SocketServer {
   }
 
   private registerBaseHandlers() {
-    if (!this._io) return;
-
-    this._io.on("connection", (socket) => {
+    this.io.on("connection", (socket) => {
       logger.info("WS connected:" + socket.id);
+      registerMessageEvents(this.io, socket);
     });
   }
 

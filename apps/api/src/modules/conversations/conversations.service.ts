@@ -35,9 +35,9 @@ export const getConversationById = async (
   conversationId: string,
   currentUserId: string,
 ) => {
-  const conversation = await conversationsDao.getConversationById(
+  const [conversation] = await conversationsDao.getConversationById(
     conversationId,
     currentUserId,
   );
-  return conversation[0];
+  return conversation;
 };
