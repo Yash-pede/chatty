@@ -4,14 +4,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from "../button.js";
 import {
     Item,
-    ItemActions,
     ItemContent,
     ItemDescription,
-    ItemGroup,
     ItemMedia,
-    ItemSeparator,
     ItemTitle,
 } from "@repo/ui/components/item"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../tooltip.js";
 
 export const ChatHeader = ({ imageUrl, name }: { imageUrl: string; name: string }) => {
     return (
@@ -20,7 +18,7 @@ export const ChatHeader = ({ imageUrl, name }: { imageUrl: string; name: string 
                 <ItemMedia>
                     <Avatar className="scale-125">
                         <AvatarImage src={imageUrl} />
-                        <AvatarFallback>{name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                        <AvatarFallback>{name.slice(0, 2).toUpperCase() || ""}</AvatarFallback>
                     </Avatar>
                 </ItemMedia>
                 <ItemContent className="gap-0">
@@ -30,10 +28,17 @@ export const ChatHeader = ({ imageUrl, name }: { imageUrl: string; name: string 
             </Item>
 
             <div className="flex items-center gap-2">
-                {[Phone, Video].map(Icon => (
-                    <Button size="icon" variant="ghost">
-                        <Icon className="h-4 w-4" />
-                    </Button>
+                {[Phone, Video].map((Icon, index) => (
+                    <Tooltip key={index}>
+                        <TooltipTrigger asChild>
+                            <Button size="icon" variant="ghost">
+                                <Icon className="h-4 w-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            {Icon === Phone ? "Call" : "Video Call"}
+                        </TooltipContent>
+                    </Tooltip>
                 ))}
 
                 <DropdownMenu>
