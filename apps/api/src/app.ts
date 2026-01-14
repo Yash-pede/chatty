@@ -17,7 +17,7 @@ socketServer.init(server);
 app.use(
   cors({
     origin: "*",
-    // credentials: true,
+    credentials: true,
   }),
 );
 // src/server.ts (VERY IMPORTANT: before routes)

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getConversation } from "@/queries/conversation.queries.ts";
-import ChatBox from "@/components/chat/ChatBox";
+import ChatView from "@/components/chat/ChatView.tsx";
 
 export const Route = createFileRoute("/_authenticated/chat/$conversationId")({
   component: RouteComponent,
@@ -18,5 +18,5 @@ export const Route = createFileRoute("/_authenticated/chat/$conversationId")({
 
 function RouteComponent() {
   const { conversationData } = Route.useLoaderData();
-  return <ChatBox conversationData={conversationData.data} />;
+  return <ChatView conversationData={conversationData.data} />;
 }

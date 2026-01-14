@@ -1,22 +1,25 @@
 import { Messages } from "@/constants";
 import { useUser } from "@clerk/clerk-react";
-import { ConversationWithOtherUser } from "@repo/db/types";
+import { ChatUser, ConversationWithOtherUser } from "@repo/db/types";
 import { ChatHeader } from "@repo/ui/components/chat/ChatHeader";
 import { ChatInput } from "@repo/ui/components/chat/ChatInput";
 import { ChatMessages } from "@repo/ui/components/chat/ChatMessages";
-import { ChatUser } from "@repo/db/types";
+import { useSocket } from "@/lib/sockets/SocketProvider.tsx";
+import { useEffect } from "react";
 
-export default function ChatBox({
+export default function ChatView({
   conversationData,
 }: {
   conversationData: ConversationWithOtherUser;
 }) {
+  const { socket, isConnected } = useSocket();
+
   const displayName =
     conversationData.otherUser.firstName ??
     conversationData.otherUser.username ??
     "Unknown";
-    
-  const { user } = useUser()
+
+  const { user } = useUser();
   const chatUser: ChatUser = {
     id: user?.id ?? "",
     firstName: user?.firstName ?? null,
@@ -24,6 +27,11 @@ export default function ChatBox({
     username: user?.username ?? null,
     imageUrl: user?.imageUrl ?? null,
   };
+
+  useEffect(() => {
+    if (!socket || !isConnected || !conversationData.conversationId) return;
+    // socket.emit("message:send", conversationData);
+  }, [socket, conversationData, isConnected]);
 
   return (
     <div className="flex h-svh w-full flex-col bg-background">
@@ -36,4 +44,3 @@ export default function ChatBox({
     </div>
   );
 }
-
