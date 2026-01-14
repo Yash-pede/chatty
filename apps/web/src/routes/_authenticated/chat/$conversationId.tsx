@@ -18,6 +18,5 @@ export const Route = createFileRoute("/_authenticated/chat/$conversationId")({
 
 function RouteComponent() {
   const { conversationData } = Route.useLoaderData();
-  console.log("LODA", conversationData.data);
   return <ChatView conversationData={conversationData.data} />;
 }
