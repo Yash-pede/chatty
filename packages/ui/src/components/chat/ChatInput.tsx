@@ -1,13 +1,36 @@
 import { Paperclip, Send, Smile } from "lucide-react";
 import { Button } from "../button.js";
 import { Input } from "../input.js";
-import EmojiPicker from "emoji-picker-react";
+import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { useState } from "react";
 import { cn } from "@repo/ui/lib/utils.js";
 import { Card } from "../card.js";
+import { sentMessage } from "@repo/db/types";
 
-export const ChatInput = () => {
+type ChatInputProps = {
+    userId: string;
+    conversationId: string;
+    sendMessageMutation: (messagePayload: sentMessage) => Promise<void>;
+};
+
+export const ChatInput = ({ userId, conversationId, sendMessageMutation }: ChatInputProps) => {
     const [showEmojiSelector, setShowEmojiSelector] = useState(false);
+    const [message, setMessage] = useState("")
+
+    const handleSend = async () => {
+        if (!message.trim()) return;
+
+        const payload: sentMessage = {
+            senderId: userId,
+            conversationId,
+            clientMessageId: "msg124",  // using static clientMessageId temporarily 
+            type: "text",
+            content: { text: message },
+        };
+
+        await sendMessageMutation(payload);
+        setMessage("");
+    };
 
     return (
         <div className="relative flex items-center gap-2 border-t px-4 py-3">
@@ -23,9 +46,19 @@ export const ChatInput = () => {
                 <Paperclip className="h-4 w-4" />
             </Button>
 
-            <Input placeholder="Enter message..." className="flex-1" />
+            <Input
+                placeholder="Enter message..."
+                className="flex-1"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                        handleSend()
+                    }
+                }}
+            />
 
-            <Button size="icon">
+            <Button size="icon" onClick={handleSend}>
                 <Send className="h-4 w-4" />
             </Button>
 
@@ -38,7 +71,13 @@ export const ChatInput = () => {
                         : "opacity-0 translate-y-3 scale-95 pointer-events-none"
                 )}
             >
-                <EmojiPicker height={400} width={310} skinTonesDisabled searchDisabled/>
+                <EmojiPicker
+                    height={400}
+                    width={310}
+                    skinTonesDisabled
+                    searchDisabled
+                    onEmojiClick={(emojiData: EmojiClickData) => setMessage((prev) => prev + emojiData.emoji)}
+                />
             </Card>
         </div>
     );

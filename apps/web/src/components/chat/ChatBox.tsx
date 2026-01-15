@@ -1,10 +1,13 @@
 import { Messages } from "@/constants";
 import { useUser } from "@clerk/clerk-react";
-import { ConversationWithOtherUser } from "@repo/db/types";
+import { ConversationWithOtherUser, sentMessage } from "@repo/db/types";
 import { ChatHeader } from "@repo/ui/components/chat/ChatHeader";
 import { ChatInput } from "@repo/ui/components/chat/ChatInput";
 import { ChatMessages } from "@repo/ui/components/chat/ChatMessages";
 import { ChatUser } from "@repo/db/types";
+import { sendMessage } from "@/queries/message.queries";
+import { useParams } from "@tanstack/react-router";
+import { useMutation } from "@tanstack/react-query";
 
 export default function ChatBox({
   conversationData,
@@ -15,8 +18,9 @@ export default function ChatBox({
     conversationData.otherUser.firstName ??
     conversationData.otherUser.username ??
     "Unknown";
-    
+
   const { user } = useUser()
+  const { conversationId } = useParams({ strict: false })
   const chatUser: ChatUser = {
     id: user?.id ?? "",
     firstName: user?.firstName ?? null,
@@ -25,6 +29,10 @@ export default function ChatBox({
     imageUrl: user?.imageUrl ?? null,
   };
 
+  const { mutateAsync } = useMutation({
+    mutationFn: (messagePayload: sentMessage) => sendMessage(messagePayload),
+  })
+
   return (
     <div className="flex h-svh w-full flex-col bg-background">
       <ChatHeader
@@ -32,7 +40,10 @@ export default function ChatBox({
         imageUrl={conversationData.otherUser.imageUrl ?? ""}
       />
       <ChatMessages messages={Messages} userData={chatUser} />
-      <ChatInput />
+      <ChatInput
+        userId={user!.id}
+        conversationId={conversationId!}
+        sendMessageMutation={mutateAsync} />
     </div>
   );
 }

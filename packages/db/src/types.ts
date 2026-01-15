@@ -54,7 +54,14 @@ export type ChatUser = {
 //MESSAGES
 export type ChatMessage = InferSelectModel<typeof messages>;
 export type MessageContentType = {
-    text?: string,
-    imageUrl?: string,
-    videoUrl?: string
+  text?: string,
+  imageUrl?: string,
+  videoUrl?: string
+}
+export type sentMessage = {
+  senderId: string,
+  conversationId: string,
+  clientMessageId: string,
+  type: string
+  content: MessageContentType
 }
