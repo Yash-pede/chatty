@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { getAuth } from "@clerk/express";
-import { verifyToken } from "@clerk/clerk-sdk-node";
+import { verifyToken } from "@clerk/backend";
 import type { Socket } from "socket.io";
 import { env } from "@/config/env.js";
 import { logger } from "@/core/logger.js";

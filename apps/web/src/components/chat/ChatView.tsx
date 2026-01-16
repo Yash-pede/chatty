@@ -3,7 +3,7 @@ import { useUser } from "@clerk/clerk-react";
 import {
   ChatUser,
   ConversationWithOtherUser,
-  sendMessage,
+  InsertMessage,
 } from "@repo/db/types";
 import { ChatHeader } from "@repo/ui/components/chat/ChatHeader";
 import { ChatInput } from "@repo/ui/components/chat/ChatInput";
@@ -34,7 +34,7 @@ export default function ChatView({
 
   // TODO: HANDLE if !socket or error then pop message from indexdb and revert to input box
   // TODO: Insert message payload in index db
-  const sendMessage = (payload: sendMessage) => {
+  const sendMessage = (payload: InsertMessage) => {
     if (!socket || !isConnected)
       return toast.error("Unable to connect to the server.");
     socket.emit("message:new", payload);

@@ -9,9 +9,17 @@ import { logger } from "@/core/logger.js";
 import webhookRouter from "@/modules/webhook/webhook.router.js";
 import http from "http";
 import { socketServer } from "@/ws/socket.instance.js";
+import { RedisManager } from "@/redis/RedisManager.js";
+import { env } from "@/config/env.js";
 
 const app = express();
 export const server = http.createServer(app);
+
+RedisManager.init({
+  host: env.REDIS_HOST,
+  port: Number(env.REDIS_PORT),
+});
+
 socketServer.init(server);
 
 app.use(
