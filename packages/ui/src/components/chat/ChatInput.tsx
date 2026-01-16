@@ -7,12 +7,12 @@ import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { Button } from "../button.js";
 import { Input } from "../input.js";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover.js";
-import { sentMessage } from "@repo/db/types";
+import { sendMessage } from "@repo/db/types";
 
 type ChatInputProps = {
   userId: string;
   conversationId: string;
-  sendMessageMutation: (payload: sentMessage) => Promise<void>;
+  sendMessageMutation: (payload: sendMessage) => any;
 };
 
 export const ChatInput = ({
@@ -30,7 +30,7 @@ export const ChatInput = ({
     const text = inputEl.value.trim();
     if (!text) return;
 
-    const payload: sentMessage = {
+    const payload: sendMessage = {
       senderId: userId,
       conversationId,
       clientMessageId: crypto.randomUUID(),
@@ -68,13 +68,14 @@ export const ChatInput = ({
         </PopoverTrigger>
 
         <PopoverContent side="top" align="start" className="p-0 w-auto">
+          {/*@ts-ignore*/}
           <EmojiPicker
             height={380}
             width={320}
             skinTonesDisabled
             onEmojiClick={(emoji) => {
               handleEmojiClick(emoji);
-              setEmojiOpen(false); // optional UX
+              // setEmojiOpen(false); // optional UX
             }}
           />
         </PopoverContent>

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getConversation } from "@/queries/conversation.queries.ts";
+import { getConversation } from "@/dbInteractions/queries/conversation.queries.ts";
 import ChatView from "@/components/chat/ChatView.tsx";
 
 export const Route = createFileRoute("/_authenticated/chat/$conversationId")({

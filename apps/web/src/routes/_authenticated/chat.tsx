@@ -4,7 +4,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import DefaultPending from "@repo/ui/components/layout/DefaultPending";
-import { getUserById } from "@/queries/user.queries.ts";
+import { getUserById } from "@/dbInteractions/queries/user.queries.ts";
 import { AppSidebar } from "@/components/app-sidebar.tsx";
 import { SocketProvider } from "@/lib/sockets/SocketProvider.tsx";
 

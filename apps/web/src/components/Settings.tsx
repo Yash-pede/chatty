@@ -1,5 +1,5 @@
 import { queryClient } from "@/lib/queryClient";
-import { updateClerkUserById } from "@/queries/user.queries";
+import { updateClerkUserById } from "@/dbInteractions/queries/user.queries";
 import { useUser } from "@clerk/clerk-react";
 
 import {

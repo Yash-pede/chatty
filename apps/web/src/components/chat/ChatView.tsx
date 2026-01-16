@@ -1,11 +1,15 @@
 import { Messages } from "@/constants";
 import { useUser } from "@clerk/clerk-react";
-import { ChatUser, ConversationWithOtherUser } from "@repo/db/types";
+import {
+  ChatUser,
+  ConversationWithOtherUser,
+  sendMessage,
+} from "@repo/db/types";
 import { ChatHeader } from "@repo/ui/components/chat/ChatHeader";
 import { ChatInput } from "@repo/ui/components/chat/ChatInput";
 import { ChatMessages } from "@repo/ui/components/chat/ChatMessages";
 import { useSocket } from "@/lib/sockets/SocketProvider.tsx";
-import { useEffect } from "react";
+import { toast } from "sonner";
 
 export default function ChatView({
   conversationData,
@@ -28,11 +32,13 @@ export default function ChatView({
     imageUrl: user?.imageUrl ?? null,
   };
 
-  useEffect(() => {
-    if (!socket || !isConnected || !conversationData.conversationId) return;
-    // socket.emit("message:send", conversationData);
-  }, [socket, conversationData, isConnected]);
-
+  // TODO: HANDLE if !socket or error then pop message from indexdb and revert to input box
+  // TODO: Insert message payload in index db
+  const sendMessage = (payload: sendMessage) => {
+    if (!socket || !isConnected)
+      return toast.error("Unable to connect to the server.");
+    socket.emit("message:new", payload);
+  };
   return (
     <div className="flex h-svh w-full flex-col bg-background">
       <ChatHeader
@@ -40,7 +46,11 @@ export default function ChatView({
         imageUrl={conversationData.otherUser.imageUrl ?? ""}
       />
       <ChatMessages messages={Messages} userData={chatUser} />
-      <ChatInput />
+      <ChatInput
+        conversationId={conversationData.conversationId}
+        userId={user!.id}
+        sendMessageMutation={sendMessage}
+      />
     </div>
   );
 }

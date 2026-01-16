@@ -19,7 +19,7 @@ import SidebarChatItem from "@/components/chat/SidebarChatItem.tsx";
 import CustomSidebarFooter from "@/components/chat/SidebarFooter.tsx";
 import { User } from "@repo/db/types";
 import { useQuery } from "@tanstack/react-query";
-import { getAllUserConversations } from "@/queries/conversation.queries.ts";
+import { getAllUserConversations } from "@/dbInteractions/queries/conversation.queries.ts";
 import DefaultPending from "@repo/ui/components/layout/DefaultPending";
 import { DefaultError } from "@repo/ui/components/layout/DefaultError";
 
