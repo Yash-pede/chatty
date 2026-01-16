@@ -1,84 +1,107 @@
+// File: components/chat/ChatInput.tsx
+
 import { Paperclip, Send, Smile } from "lucide-react";
+import { useRef, useState } from "react";
+import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+
 import { Button } from "../button.js";
 import { Input } from "../input.js";
-import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
-import { useState } from "react";
-import { cn } from "@repo/ui/lib/utils.js";
-import { Card } from "../card.js";
+import { Popover, PopoverContent, PopoverTrigger } from "../popover.js";
 import { sentMessage } from "@repo/db/types";
 
 type ChatInputProps = {
-    userId: string;
-    conversationId: string;
-    sendMessageMutation: (messagePayload: sentMessage) => Promise<void>;
+  userId: string;
+  conversationId: string;
+  sendMessageMutation: (payload: sentMessage) => Promise<void>;
 };
 
-export const ChatInput = ({ userId, conversationId, sendMessageMutation }: ChatInputProps) => {
-    const [showEmojiSelector, setShowEmojiSelector] = useState(false);
-    const [message, setMessage] = useState("")
+export const ChatInput = ({
+  userId,
+  conversationId,
+  sendMessageMutation,
+}: ChatInputProps) => {
+  const [emojiOpen, setEmojiOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-    const handleSend = async () => {
-        if (!message.trim()) return;
+  const handleSend = async () => {
+    const inputEl = inputRef.current;
+    if (!inputEl) return;
 
-        const payload: sentMessage = {
-            senderId: userId,
-            conversationId,
-            clientMessageId: "msg124",  // using static clientMessageId temporarily 
-            type: "text",
-            content: { text: message },
-        };
+    const text = inputEl.value.trim();
+    if (!text) return;
 
-        await sendMessageMutation(payload);
-        setMessage("");
+    const payload: sentMessage = {
+      senderId: userId,
+      conversationId,
+      clientMessageId: crypto.randomUUID(),
+      type: "text",
+      content: { text },
     };
 
-    return (
-        <div className="relative flex items-center gap-2 border-t px-4 py-3">
-            <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => setShowEmojiSelector(!showEmojiSelector)}
-            >
-                <Smile className="h-4 w-4" />
-            </Button>
+    await sendMessageMutation(payload);
+    inputEl.value = "";
+  };
 
-            <Button size="icon" variant="ghost">
-                <Paperclip className="h-4 w-4" />
-            </Button>
+  const handleEmojiClick = (emoji: EmojiClickData) => {
+    const inputEl = inputRef.current;
+    if (!inputEl) return;
 
-            <Input
-                placeholder="Enter message..."
-                className="flex-1"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                        handleSend()
-                    }
-                }}
-            />
+    const start = inputEl.selectionStart ?? inputEl.value.length;
+    const end = inputEl.selectionEnd ?? inputEl.value.length;
 
-            <Button size="icon" onClick={handleSend}>
-                <Send className="h-4 w-4" />
-            </Button>
+    inputEl.value =
+      inputEl.value.slice(0, start) + emoji.emoji + inputEl.value.slice(end);
 
-            {/* Emoji Picker */}
-            <Card
-                className={cn(
-                    "absolute p-0 left-4 bottom-[calc(100%+8px)] z-50 transition-all duration-200 ease-out",
-                    showEmojiSelector
-                        ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
-                        : "opacity-0 translate-y-3 scale-95 pointer-events-none"
-                )}
-            >
-                <EmojiPicker
-                    height={400}
-                    width={310}
-                    skinTonesDisabled
-                    searchDisabled
-                    onEmojiClick={(emojiData: EmojiClickData) => setMessage((prev) => prev + emojiData.emoji)}
-                />
-            </Card>
-        </div>
-    );
+    const cursor = start + emoji.emoji.length;
+    inputEl.setSelectionRange(cursor, cursor);
+    inputEl.focus();
+  };
+
+  return (
+    <div className="flex items-center gap-2 border-t px-4 py-3">
+      {/* Emoji Picker */}
+      <Popover open={emojiOpen} onOpenChange={setEmojiOpen}>
+        <PopoverTrigger asChild>
+          <Button size="icon" variant="ghost">
+            <Smile className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+
+        <PopoverContent side="top" align="start" className="p-0 w-auto">
+          <EmojiPicker
+            height={380}
+            width={320}
+            skinTonesDisabled
+            onEmojiClick={(emoji) => {
+              handleEmojiClick(emoji);
+              setEmojiOpen(false); // optional UX
+            }}
+          />
+        </PopoverContent>
+      </Popover>
+
+      {/* Attachment */}
+      <Button size="icon" variant="ghost">
+        <Paperclip className="h-4 w-4" />
+      </Button>
+
+      {/* Input */}
+      <Input
+        ref={inputRef}
+        placeholder="Enter message..."
+        className="flex-1"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleSend();
+          }
+        }}
+      />
+
+      {/* Send */}
+      <Button size="icon" onClick={handleSend}>
+        <Send className="h-4 w-4" />
+      </Button>
+    </div>
+  );
 };
