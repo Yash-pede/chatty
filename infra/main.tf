@@ -26,6 +26,18 @@ data "aws_availability_zones" "available" {
     values = ["opt-in-not-required"]
   }
 }
+resource "aws_subnet" "private" {
+  count = 2
+
+  vpc_id                  = data.aws_vpc.default.id
+  cidr_block = cidrsubnet(data.aws_vpc.default.cidr_block, 8, count.index + 100)
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "chatty-private-${count.index}"
+  }
+}
 
 locals {
   region = "ap-south-1"
@@ -75,4 +87,21 @@ module "backend_ecs" {
   source         = "./modules/ecs-api"
   ecr_repo_url   = aws_ecr_repository.api-ecr.repository_url
   container_port = 8080
+}
+
+module "chat_cache" {
+  source = "./modules/valkey-cache"
+
+  name                  = "chat-app-cache"
+  vpc_id                = data.aws_vpc.default.id
+  private_subnet_ids    = aws_subnet.private[*].id
+  api_security_group_id = module.backend_ecs.api_security_group_id
+
+  max_storage_gb = 10
+  max_ecpu       = 10000
+
+  tags = {
+    Project = "chat-app"
+    Env     = "prod"
+  }
 }
