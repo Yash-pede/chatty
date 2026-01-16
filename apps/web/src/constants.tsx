@@ -4,14 +4,14 @@ export const Messages: ChatMessage[] = [
   {
     id: "b1c1a6b4-1a2d-4b0e-9c5f-001",
     conversationId: "11111111-1111-1111-1111-111111111111",
-    senderId: "user_389RthDV50VQ8m4gB1yW1nWn4hB",
+    senderId: "user_387bipe3KTwfqvENPKEQo3knueA",
     clientMessageId: "client-001",
     type: "text",
     content: { text: "Hey, kaise ho?" },
     replyToId: null,
     isEdited: false,
     isDeleted: false,
-    createdAt: new Date("2025-01-10T10:00:00Z")
+    createdAt: new Date("2025-01-10T10:00:00Z"),
   },
   {
     id: "b1c1a6b4-1a2d-4b0e-9c5f-002",
@@ -23,19 +23,19 @@ export const Messages: ChatMessage[] = [
     replyToId: "b1c1a6b4-1a2d-4b0e-9c5f-001",
     isEdited: false,
     isDeleted: false,
-    createdAt: new Date("2025-01-10T10:00:10Z")
+    createdAt: new Date("2025-01-10T10:00:10Z"),
   },
   {
     id: "b1c1a6b4-1a2d-4b0e-9c5f-003",
     conversationId: "11111111-1111-1111-1111-111111111111",
-    senderId: "user_389RthDV50VQ8m4gB1yW1nWn4hB",
+    senderId: "user_387bipe3KTwfqvENPKEQo3knueA",
     clientMessageId: "client-003",
     type: "text",
     content: { text: "Gym jaa raha hoon" },
     replyToId: null,
     isEdited: false,
     isDeleted: false,
-    createdAt: new Date("2025-01-10T10:01:00Z")
+    createdAt: new Date("2025-01-10T10:01:00Z"),
   },
   {
     id: "b1c1a6b4-1a2d-4b0e-9c5f-004",
@@ -47,19 +47,19 @@ export const Messages: ChatMessage[] = [
     replyToId: "b1c1a6b4-1a2d-4b0e-9c5f-003",
     isEdited: false,
     isDeleted: false,
-    createdAt: new Date("2025-01-10T10:01:20Z")
+    createdAt: new Date("2025-01-10T10:01:20Z"),
   },
   {
     id: "b1c1a6b4-1a2d-4b0e-9c5f-005",
     conversationId: "11111111-1111-1111-1111-111111111111",
-    senderId: "user_389RthDV50VQ8m4gB1yW1nWn4hB",
+    senderId: "user_387bipe3KTwfqvENPKEQo3knueA",
     clientMessageId: "client-005",
     type: "text",
     content: { text: "Push, chest heavy" },
     replyToId: null,
     isEdited: false,
     isDeleted: false,
-    createdAt: new Date("2025-01-10T10:02:00Z")
+    createdAt: new Date("2025-01-10T10:02:00Z"),
   },
   {
     id: "b1c1a6b4-1a2d-4b0e-9c5f-006",
@@ -71,19 +71,19 @@ export const Messages: ChatMessage[] = [
     replyToId: null,
     isEdited: false,
     isDeleted: false,
-    createdAt: new Date("2025-01-10T10:02:30Z")
+    createdAt: new Date("2025-01-10T10:02:30Z"),
   },
   {
     id: "b1c1a6b4-1a2d-4b0e-9c5f-007",
     conversationId: "11111111-1111-1111-1111-111111111111",
-    senderId: "user_389RthDV50VQ8m4gB1yW1nWn4hB",
+    senderId: "user_387bipe3KTwfqvENPKEQo3knueA",
     clientMessageId: "client-007",
     type: "text",
     content: { text: "Haan, incline press pe" },
     replyToId: null,
     isEdited: true,
     isDeleted: false,
-    createdAt: new Date("2025-01-10T10:03:00Z")
+    createdAt: new Date("2025-01-10T10:03:00Z"),
   },
   {
     id: "b1c1a6b4-1a2d-4b0e-9c5f-008",
@@ -95,19 +95,19 @@ export const Messages: ChatMessage[] = [
     replyToId: null,
     isEdited: false,
     isDeleted: false,
-    createdAt: new Date("2025-01-10T10:03:40Z")
+    createdAt: new Date("2025-01-10T10:03:40Z"),
   },
   {
     id: "b1c1a6b4-1a2d-4b0e-9c5f-009",
     conversationId: "11111111-1111-1111-1111-111111111111",
-    senderId: "user_389RthDV50VQ8m4gB1yW1nWn4hB",
+    senderId: "user_387bipe3KTwfqvENPKEQo3knueA",
     clientMessageId: "client-009",
     type: "text",
     content: { text: "Done 👍" },
     replyToId: null,
     isEdited: false,
     isDeleted: false,
-    createdAt: new Date("2025-01-10T10:04:00Z")
+    createdAt: new Date("2025-01-10T10:04:00Z"),
   },
   {
     id: "b1c1a6b4-1a2d-4b0e-9c5f-010",
@@ -119,19 +119,19 @@ export const Messages: ChatMessage[] = [
     replyToId: null,
     isEdited: false,
     isDeleted: false,
-    createdAt: new Date("2025-01-10T10:05:00Z")
+    createdAt: new Date("2025-01-10T10:05:00Z"),
   },
   {
     id: "b1c1a6b4-1a2d-4b0e-9c5f-011",
     conversationId: "11111111-1111-1111-1111-111111111111",
-    senderId: "user_389RthDV50VQ8m4gB1yW1nWn4hB",
+    senderId: "user_387bipe3KTwfqvENPKEQo3knueA",
     clientMessageId: "client-011",
     type: "text",
     content: { text: "Curd + eggs, sorted" },
     replyToId: null,
     isEdited: false,
     isDeleted: false,
-    createdAt: new Date("2025-01-10T10:06:00Z")
+    createdAt: new Date("2025-01-10T10:06:00Z"),
   },
   {
     id: "b1c1a6b4-1a2d-4b0e-9c5f-012",
@@ -143,19 +143,19 @@ export const Messages: ChatMessage[] = [
     replyToId: null,
     isEdited: false,
     isDeleted: false,
-    createdAt: new Date("2025-01-10T10:06:20Z")
+    createdAt: new Date("2025-01-10T10:06:20Z"),
   },
   {
     id: "b1c1a6b4-1a2d-4b0e-9c5f-013",
     conversationId: "11111111-1111-1111-1111-111111111111",
-    senderId: "user_389RthDV50VQ8m4gB1yW1nWn4hB",
+    senderId: "user_387bipe3KTwfqvENPKEQo3knueA",
     clientMessageId: "client-013",
     type: "text",
     content: { text: "Shaam ko milte hain" },
     replyToId: null,
     isEdited: false,
     isDeleted: false,
-    createdAt: new Date("2025-01-10T10:07:00Z")
+    createdAt: new Date("2025-01-10T10:07:00Z"),
   },
   {
     id: "b1c1a6b4-1a2d-4b0e-9c5f-014",
@@ -167,18 +167,18 @@ export const Messages: ChatMessage[] = [
     replyToId: null,
     isEdited: false,
     isDeleted: false,
-    createdAt: new Date("2025-01-10T10:07:30Z")
+    createdAt: new Date("2025-01-10T10:07:30Z"),
   },
   {
     id: "b1c1a6b4-1a2d-4b0e-9c5f-015",
     conversationId: "11111111-1111-1111-1111-111111111111",
-    senderId: "user_389RthDV50VQ8m4gB1yW1nWn4hB",
+    senderId: "user_387bipe3KTwfqvENPKEQo3knueA",
     clientMessageId: "client-015",
     type: "file",
     content: { text: "👍" },
     replyToId: null,
     isEdited: false,
     isDeleted: false,
-    createdAt: new Date("2025-01-10T10:08:00Z")
-  }
-]
+    createdAt: new Date("2025-01-10T10:08:00Z"),
+  },
+];

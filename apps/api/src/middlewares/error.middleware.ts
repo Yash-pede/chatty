@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { logger } from "@/core/logger.js";
 
 export function errorMiddleware(
@@ -14,7 +14,7 @@ export function errorMiddleware(
       path: req.originalUrl,
       // @ts-ignore
       userId: req.auth?.userId,
-  },
+    },
     "Unhandled error",
   );
 
