@@ -73,7 +73,7 @@ export const ChatInput = ({
             height={380}
             width={320}
             skinTonesDisabled
-            onEmojiClick={(emoji) => {
+            onEmojiClick={(emoji: EmojiClickData) => {
               handleEmojiClick(emoji);
               // setEmojiOpen(false); // optional UX
             }}
