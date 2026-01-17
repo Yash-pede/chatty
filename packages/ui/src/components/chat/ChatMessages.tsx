@@ -61,13 +61,13 @@ export const ChatMessages = ({
 
             {/* TIME + DELIVERY */}
             <ItemGroup className="flex-row justify-end gap-1">
-              <Item className="p-0 text-xs">
+              {/* <Item className="p-0 text-xs">
                 {" "}
                 {message.createdAt.toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
-              </Item>
+              </Item> */}
               {isMe && <CheckCheck size={18} />}
             </ItemGroup>
           </Item>

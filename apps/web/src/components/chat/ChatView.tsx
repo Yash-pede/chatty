@@ -1,6 +1,6 @@
-import { Messages } from "@/constants";
 import { useUser } from "@clerk/clerk-react";
 import {
+  ChatMessage,
   ChatUser,
   ConversationWithOtherUser,
   InsertMessage,
@@ -9,8 +9,9 @@ import { ChatHeader } from "@repo/ui/components/chat/ChatHeader";
 import { ChatInput } from "@repo/ui/components/chat/ChatInput";
 import { ChatMessages } from "@repo/ui/components/chat/ChatMessages";
 import { useSocket } from "@/lib/sockets/SocketProvider.tsx";
+import { useEffect, useState } from "react";
+import { getMessagesByConversationIdIDB, saveMessageIDB } from "@/dbInteractions/indexedDb/indexDbInteractions";
 import { toast } from "sonner";
-import { useEffect } from "react";
 
 export default function ChatView({
   conversationData,
@@ -18,6 +19,7 @@ export default function ChatView({
   conversationData: ConversationWithOtherUser;
 }) {
   const { socket, isConnected } = useSocket();
+  const [messages, setMessages] = useState<ChatMessage[]>([])  // Will make a zustand store for this later
 
   const displayName =
     conversationData.otherUser.firstName ??
@@ -49,6 +51,7 @@ export default function ChatView({
 
     const handler = (data: any) => {
       console.log("NEW:MESSAGE", data);
+      saveMessageIDB(data)
     };
 
     socket.on("message:new", handler);
@@ -58,12 +61,18 @@ export default function ChatView({
     };
   }, [socket, isConnected]);
 
+  useEffect(() => {
+    getMessagesByConversationIdIDB(conversationData.conversationId).then((data) => setMessages(data))
+  }, [conversationData.conversationId])
+
+
   // TODO: HANDLE if !socket or error then pop message from indexdb and revert to input box
   // TODO: Insert message payload in index db
   const sendMessage = (payload: InsertMessage) => {
     if (!socket || !isConnected)
       return toast.error("Unable to connect to the server.");
     socket.emit("message:send", payload);
+    saveMessageIDB(payload)
   };
   return (
     <div className="flex h-svh w-full flex-col bg-background">
@@ -71,11 +80,11 @@ export default function ChatView({
         name={displayName}
         imageUrl={conversationData.otherUser.imageUrl ?? ""}
       />
-      <ChatMessages messages={Messages} userData={chatUser} />
+      <ChatMessages messages={messages} userData={chatUser} />
       <ChatInput
         conversationId={conversationData.conversationId}
         userId={user!.id}
-        sendMessageMutation={sendMessage}
+        sendMessage={sendMessage}
       />
     </div>
   );
