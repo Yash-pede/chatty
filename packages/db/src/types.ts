@@ -45,12 +45,10 @@ export type ChatUser = {
 };
 
 //MESSAGES
-export type ChatMessage = InferSelectModel<typeof messages>;
+export type Message = InferSelectModel<typeof messages>;
+export type InsertMessage = InferInsertModel<typeof messages>;
 export type MessageContentType = {
   text?: string;
   imageUrl?: string;
   videoUrl?: string;
 };
-
-export type InsertMessage = InferInsertModel<typeof messages>;
-export type Message = InferSelectModel<typeof messages>;

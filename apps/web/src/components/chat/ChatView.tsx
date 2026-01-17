@@ -1,4 +1,3 @@
-import { Messages } from "@/constants";
 import { useUser } from "@clerk/clerk-react";
 import {
   ChatUser,
@@ -9,8 +8,9 @@ import { ChatHeader } from "@repo/ui/components/chat/ChatHeader";
 import { ChatInput } from "@repo/ui/components/chat/ChatInput";
 import { ChatMessages } from "@repo/ui/components/chat/ChatMessages";
 import { useSocket } from "@/lib/sockets/SocketProvider.tsx";
-import { toast } from "sonner";
 import { useEffect } from "react";
+import { toast } from "sonner";
+import { useMessageStore } from "@/stores/messages.store";
 
 export default function ChatView({
   conversationData,
@@ -18,6 +18,7 @@ export default function ChatView({
   conversationData: ConversationWithOtherUser;
 }) {
   const { socket, isConnected } = useSocket();
+  const { messages, saveMessageIDB, getMessagesByConversationIdIDB } = useMessageStore();
 
   const displayName =
     conversationData.otherUser.firstName ??
@@ -58,12 +59,18 @@ export default function ChatView({
     };
   }, [socket, isConnected]);
 
+  useEffect(() => {
+    getMessagesByConversationIdIDB(conversationData.conversationId)
+  }, [conversationData.conversationId])
+
+
   // TODO: HANDLE if !socket or error then pop message from indexdb and revert to input box
   // TODO: Insert message payload in index db
   const sendMessage = (payload: InsertMessage) => {
     if (!socket || !isConnected)
       return toast.error("Unable to connect to the server.");
     socket.emit("message:send", payload);
+    saveMessageIDB(payload)
   };
   return (
     <div className="flex h-svh w-full flex-col bg-background">
@@ -71,11 +78,11 @@ export default function ChatView({
         name={displayName}
         imageUrl={conversationData.otherUser.imageUrl ?? ""}
       />
-      <ChatMessages messages={Messages} userData={chatUser} />
+      <ChatMessages messages={messages} userData={chatUser} />
       <ChatInput
         conversationId={conversationData.conversationId}
         userId={user!.id}
-        sendMessageMutation={sendMessage}
+        sendMessage={sendMessage}
       />
     </div>
   );
