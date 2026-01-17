@@ -53,3 +53,4 @@ export type MessageContentType = {
 };
 
 export type InsertMessage = InferInsertModel<typeof messages>;
+export type Message = InferSelectModel<typeof messages>;

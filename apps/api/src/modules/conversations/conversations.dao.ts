@@ -124,4 +124,12 @@ export const conversationsDao = {
       .innerJoin(users, eq(users.id, cpOther.userId))
       .where(eq(conversations.id, conversationId));
   },
+  getConversationParticipantsByConversationId: async (
+    conversationId: string,
+  ) => {
+    return db
+      .select({ userId: conversationParticipants.userId })
+      .from(conversationParticipants)
+      .where(eq(conversationParticipants.conversationId, conversationId));
+  },
 };

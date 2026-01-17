@@ -10,6 +10,7 @@ import { ChatInput } from "@repo/ui/components/chat/ChatInput";
 import { ChatMessages } from "@repo/ui/components/chat/ChatMessages";
 import { useSocket } from "@/lib/sockets/SocketProvider.tsx";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 export default function ChatView({
   conversationData,
@@ -32,12 +33,37 @@ export default function ChatView({
     imageUrl: user?.imageUrl ?? null,
   };
 
+  useEffect(() => {
+    if (!socket || !isConnected) return;
+    if (!conversationData.conversationId) return;
+
+    socket.emit("conversation:join", conversationData.conversationId);
+
+    return () => {
+      socket.emit("conversation:leave", conversationData.conversationId);
+    };
+  }, [conversationData.conversationId, socket, isConnected]);
+
+  useEffect(() => {
+    if (!socket || !isConnected) return;
+
+    const handler = (data: any) => {
+      console.log("NEW:MESSAGE", data);
+    };
+
+    socket.on("message:new", handler);
+
+    return () => {
+      socket.off("message:new", handler);
+    };
+  }, [socket, isConnected]);
+
   // TODO: HANDLE if !socket or error then pop message from indexdb and revert to input box
   // TODO: Insert message payload in index db
   const sendMessage = (payload: InsertMessage) => {
     if (!socket || !isConnected)
       return toast.error("Unable to connect to the server.");
-    socket.emit("message:new", payload);
+    socket.emit("message:send", payload);
   };
   return (
     <div className="flex h-svh w-full flex-col bg-background">

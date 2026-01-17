@@ -41,3 +41,11 @@ export const getConversationById = async (
   );
   return conversation;
 };
+
+export const getConversationParticipantsByConversationId = async (
+  conversationId: string,
+): Promise<Array<{ userId: string }>> => {
+  return conversationsDao.getConversationParticipantsByConversationId(
+    conversationId,
+  );
+};
