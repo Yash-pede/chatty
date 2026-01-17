@@ -1,6 +1,5 @@
 import { useUser } from "@clerk/clerk-react";
 import {
-  ChatMessage,
   ChatUser,
   ConversationWithOtherUser,
   InsertMessage,
@@ -9,9 +8,9 @@ import { ChatHeader } from "@repo/ui/components/chat/ChatHeader";
 import { ChatInput } from "@repo/ui/components/chat/ChatInput";
 import { ChatMessages } from "@repo/ui/components/chat/ChatMessages";
 import { useSocket } from "@/lib/sockets/SocketProvider.tsx";
-import { useEffect, useState } from "react";
-import { getMessagesByConversationIdIDB, saveMessageIDB } from "@/dbInteractions/indexedDb/indexDbInteractions";
+import { useEffect } from "react";
 import { toast } from "sonner";
+import { useMessageStore } from "@/stores/messages.store";
 
 export default function ChatView({
   conversationData,
@@ -19,7 +18,7 @@ export default function ChatView({
   conversationData: ConversationWithOtherUser;
 }) {
   const { socket, isConnected } = useSocket();
-  const [messages, setMessages] = useState<ChatMessage[]>([])  // Will make a zustand store for this later
+  const { messages, saveMessageIDB, getMessagesByConversationIdIDB } = useMessageStore();
 
   const displayName =
     conversationData.otherUser.firstName ??
@@ -51,7 +50,6 @@ export default function ChatView({
 
     const handler = (data: any) => {
       console.log("NEW:MESSAGE", data);
-      saveMessageIDB(data)
     };
 
     socket.on("message:new", handler);
@@ -62,7 +60,7 @@ export default function ChatView({
   }, [socket, isConnected]);
 
   useEffect(() => {
-    getMessagesByConversationIdIDB(conversationData.conversationId).then((data) => setMessages(data))
+    getMessagesByConversationIdIDB(conversationData.conversationId)
   }, [conversationData.conversationId])
 
 
