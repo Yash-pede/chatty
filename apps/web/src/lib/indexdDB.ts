@@ -1,14 +1,21 @@
-import { openDB } from 'idb';
+import { Conversation, InsertMessage } from "@repo/db/types"
+import Dexie, { type EntityTable } from "dexie"
 
-export const dbPromise = openDB("chat-db", 1, {
-    upgrade(db) {
-        if (!db.objectStoreNames.contains("messages")) {
-            const store = db.createObjectStore("messages", {
-                keyPath: "clientMessageId",
-            });
-            store.createIndex("conversationId", "conversationId");
-        }
-    },
-});
+export const db = new Dexie("ChatDatabase") as Dexie & {
+  messages: EntityTable<InsertMessage, "id">
+  conversations: EntityTable<Conversation, "id">
+}
 
+// Schema declaration
+db.version(1).stores({
+  messages: `
+    ++id,
+    conversationId,
+    createdAt
+  `,
+  conversations: `
+    id,
+    updatedAt
+  `
+})
 

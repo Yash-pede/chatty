@@ -20,7 +20,7 @@ export const ChatMessages = ({
 
   return (
     <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-6">
-      {messages.map((message: InsertMessage) => {
+      {messages?.map((message: InsertMessage) => {
         const isMe = message.senderId === userData?.id;
         return (
           <Item
