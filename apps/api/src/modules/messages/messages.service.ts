@@ -4,3 +4,11 @@ import { messagesDao } from "@/modules/messages/messages.dao.js";
 export const insertMessage = (data: InsertMessage) => {
   return messagesDao.insertMessage(data);
 };
+
+export const getMessages = (
+  conversationId: string,
+  limit: number,
+  cursor?: number,
+) => {
+  return messagesDao.getMessages(conversationId, limit, cursor);
+};

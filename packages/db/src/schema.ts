@@ -1,4 +1,5 @@
 import {
+  bigint,
   boolean,
   index,
   integer,
@@ -236,6 +237,9 @@ export const messages = pgTable(
   "messages",
   {
     id: uuid("id").defaultRandom().primaryKey(),
+    sequence: bigint("sequence", { mode: "number" })
+      .notNull()
+      .generatedAlwaysAsIdentity(),
 
     conversationId: uuid("conversation_id")
       .references(() => conversations.id, { onDelete: "cascade" })
@@ -264,6 +268,10 @@ export const messages = pgTable(
     conversationIdx: index("messages_conversation_idx").on(t.conversationId),
     createdAtIdx: index("messages_created_at_idx").on(t.createdAt),
     clientIdx: index("messages_client_idx").on(t.clientMessageId),
+    conversationSeqIdx: index("messages_conversation_seq_idx").on(
+      t.conversationId,
+      t.sequence.desc(),
+    ),
   }),
 );
 

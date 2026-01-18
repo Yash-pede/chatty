@@ -3,6 +3,8 @@ import {
   InsertConversation,
   InsertConversationParticipants,
 } from "@repo/db/types";
+import { BadRequestError } from "@/core/errors/AppError.js";
+import { getMessages } from "@/modules/messages/messages.service.js";
 
 export const createConversationWithParticipants = async (
   data: InsertConversation,
@@ -48,4 +50,31 @@ export const getConversationParticipantsByConversationId = async (
   return conversationsDao.getConversationParticipantsByConversationId(
     conversationId,
   );
+};
+
+export const getConversationMessages = async (
+  conversationId: string,
+  userId: string,
+  limit: number,
+  cursor?: number,
+) => {
+  const participant = await conversationsDao.getConversatioParticipant(
+    conversationId,
+    userId,
+  );
+  if (participant.length === 0) {
+    throw new BadRequestError("User Not a part of conversation", 403);
+  }
+
+  const messages = await getMessages(conversationId, limit, cursor);
+  const hasMore = messages.length > limit;
+  const items = hasMore ? messages.slice(0, limit) : messages;
+  const nextCursor = items.length > 0 ? items[items.length - 1].sequence : null;
+  return {
+    items,
+    pageInfo: {
+      hasMore,
+      nextCursor,
+    },
+  };
 };

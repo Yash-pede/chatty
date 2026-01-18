@@ -132,4 +132,16 @@ export const conversationsDao = {
       .from(conversationParticipants)
       .where(eq(conversationParticipants.conversationId, conversationId));
   },
+  getConversatioParticipant: async (conversationId: string, userId: string) => {
+    return db
+      .select({ userId: conversationParticipants.userId })
+      .from(conversationParticipants)
+      .where(
+        and(
+          eq(conversationParticipants.conversationId, conversationId),
+          eq(conversationParticipants.userId, userId),
+        ),
+      )
+      .limit(1);
+  },
 };
