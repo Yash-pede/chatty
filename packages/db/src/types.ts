@@ -52,3 +52,11 @@ export type MessageContentType = {
   imageUrl?: string;
   videoUrl?: string;
 };
+
+export const MessagesFetchResponse = {
+  items: Array<Message>,
+  pageInfo: {
+    hasMore: Boolean,
+    nextCursor: typeof messages.sequence,
+  },
+};
