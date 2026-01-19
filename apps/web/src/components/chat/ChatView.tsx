@@ -1,41 +1,32 @@
-import { useEffect } from "react";
 import { useUser } from "@clerk/clerk-react";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { useInView } from "react-intersection-observer";
-import { toast } from "sonner";
-
 import {
   ChatUser,
   ConversationWithOtherUser,
   InsertMessage,
-  MessagesFetchResponse,
 } from "@repo/db/types";
-
 import { ChatHeader } from "@repo/ui/components/chat/ChatHeader";
 import { ChatInput } from "@repo/ui/components/chat/ChatInput";
 import { ChatMessages } from "@repo/ui/components/chat/ChatMessages";
-
-import { useSocket } from "@/lib/sockets/SocketProvider";
-import { getPaginatedMessages } from "@/dbInteractions/queries/message.queries.ts";
-import { db } from "@/lib/indexdDB";
-import { useLiveQuery } from "dexie-react-hooks";
-
-const PAGE_SIZE = 30;
+import { useSocket } from "@/lib/sockets/SocketProvider.tsx";
+import { toast } from "sonner";
+import { useEffect } from "react";
+import { useMessageStore } from "@/store/messages.store";
+import { getMessagesFromServer } from "@/dbInteractions/queries/message.queries";
 
 export default function ChatView({
   conversationData,
 }: {
   conversationData: ConversationWithOtherUser;
 }) {
-  const { user } = useUser();
   const { socket, isConnected } = useSocket();
-  const queryClient = useQueryClient();
+  const { messages, setMessages, saveMessageIDB, getMessagesByConversationIdIDB, replaceOptimisticMessage, bulkSaveMessagesIDB, mergeFetchedMessages } = useMessageStore()
 
-  const conversationId = conversationData.conversationId;
+  const displayName =
+    conversationData.otherUser.firstName ??
+    conversationData.otherUser.username ??
+    "Unknown";
 
-  /* ----------------------------------------
-     USER
-  ---------------------------------------- */
+  const { user } = useUser();
   const chatUser: ChatUser = {
     id: user?.id ?? "",
     firstName: user?.firstName ?? null,
@@ -44,160 +35,91 @@ export default function ChatView({
     imageUrl: user?.imageUrl ?? null,
   };
 
-  /* ----------------------------------------
-     INTERSECTION OBSERVER (TOP SENTINEL)
-  ---------------------------------------- */
-  const { ref: topRef, inView } = useInView({
-    rootMargin: "100px",
-    threshold: 0,
-  });
-
-  /* ----------------------------------------
-     PAGINATED FETCH (OLDER MESSAGES)
-  ---------------------------------------- */
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useInfiniteQuery<MessagesFetchResponse>({
-      queryKey: ["messages", conversationId],
-      queryFn: ({ pageParam }) =>
-        getPaginatedMessages(conversationId, pageParam, PAGE_SIZE),
-      initialPageParam: undefined,
-      getNextPageParam: (lastPage) =>
-        lastPage.pageInfo.hasMore ? lastPage.pageInfo.nextCursor : undefined,
-      enabled: !!conversationId,
-      staleTime: 30_000,
-      refetchOnWindowFocus: false,
-    });
-
-  /* ----------------------------------------
-     FETCH WHEN USER SCROLLS UP
-  ---------------------------------------- */
-  useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  /* ----------------------------------------
-     SAVE FETCHED MESSAGES TO INDEXEDDB
-  ---------------------------------------- */
-  useEffect(() => {
-    if (!data) return;
-
-    const allMessages = data.pages.flatMap((p) => p.items);
-
-    (async () => {
-      await db.transaction("rw", db.messages, async () => {
-        for (const msg of allMessages) {
-          await db.messages.put(msg);
-        }
-      });
-    })();
-  }, [data]);
-
-  /* ----------------------------------------
-     READ FROM INDEXEDDB (UI SOURCE)
-  ---------------------------------------- */
-  const localMessages =
-    useLiveQuery(() =>
-      db.messages
-        .where("conversationId")
-        .equals(conversationId)
-        .sortBy("sequence"),
-    ) ?? [];
-
-  /* ----------------------------------------
-     SOCKET JOIN / LEAVE
-  ---------------------------------------- */
-  useEffect(() => {
-    if (!socket || !isConnected) return;
-    socket.emit("conversation:join", conversationId);
-    return () => socket.emit("conversation:leave", conversationId);
-  }, [socket, isConnected, conversationId]);
-
-  /* ----------------------------------------
-     SOCKET: NEW MESSAGE
-  ---------------------------------------- */
-  useEffect(() => {
-    if (!socket || !isConnected) return;
-
-    const handler = async (message: any) => {
-      await db.messages.put(message);
-
-      queryClient.setQueryData(["messages", conversationId], (old: any) => {
-        if (!old) return old;
-        const firstPage = old.pages[0];
-        return {
-          ...old,
-          pages: [
-            {
-              ...firstPage,
-              items: [...firstPage.items, message],
-            },
-            ...old.pages.slice(1),
-          ],
-        };
-      });
-    };
-
-    socket.on("message:new", handler);
-    return () => socket.off("message:new", handler);
-  }, [socket, isConnected, conversationId, queryClient]);
-
-  /* ----------------------------------------
-     SEND MESSAGE
-  ---------------------------------------- */
-  const sendMessage = async (payload: InsertMessage) => {
-    if (!socket || !isConnected) {
-      toast.error("Unable to connect");
-      return;
-    }
-
-    let localId: string | undefined;
+  const getMessages = async (conversationId: string) => {
+    const localMessages = await getMessagesByConversationIdIDB(conversationId)
+    setMessages(localMessages)
 
     try {
-      socket.emit("message:send", payload);
-      localId = await db.messages.add(payload);
-    } catch {
-      if (localId) await db.messages.delete(localId);
-      toast.error("Failed to send message");
+      const fetchedMessages = await getMessagesFromServer(conversationId, 50)
+      if (!fetchedMessages || fetchedMessages.items.length === 0) return
+      await bulkSaveMessagesIDB(fetchedMessages.items)
+      mergeFetchedMessages(fetchedMessages.items)
+    } catch (err) {
+      toast.error("Message sync failed")
     }
-  };
+  }
 
-  const displayName =
-    conversationData.otherUser.firstName ??
-    conversationData.otherUser.username ??
-    "Unknown";
 
-  const fetchOlderMessages = () => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
+  useEffect(() => {
+    if (!socket || !isConnected) return;
+    if (!conversationData.conversationId) return;
+
+    socket.emit("conversation:join", conversationData.conversationId);
+
+    return () => {
+      socket.emit("conversation:leave", conversationData.conversationId);
+    };
+  }, [conversationData.conversationId, socket, isConnected]);
+
+  useEffect(() => {
+    if (!socket || !isConnected) return;
+
+    const handler = async (data: any) => {
+      if (data.senderId === chatUser?.id) {
+        await replaceOptimisticMessage(data.clientMessageId, data);
+        return;
+      } else {
+        await saveMessageIDB(data)
+        useMessageStore.setState((state) => ({
+          messages: [...state.messages, data].sort(
+            (a, b) =>
+              new Date(a.createdAt).getTime() -
+              new Date(b.createdAt).getTime()
+          ),
+        }));
+      }
     }
-  };
 
-  /* ----------------------------------------
-     RENDER
-  ---------------------------------------- */
+    socket.on("message:new", handler);
+
+    return () => {
+      socket.off("message:new", handler);
+    };
+  }, [socket, isConnected]);
+
+  useEffect(() => {
+    getMessages(conversationData.conversationId)
+  }, [conversationData.conversationId])
+
+
+
+  // TODO: HANDLE if !socket or error then pop message from indexdb and revert to input box
+  // TODO: Insert message payload in index db
+  const sendMessage = (payload: InsertMessage) => {
+    if (!socket || !isConnected)
+      return toast.error("Unable to connect to the server.");
+    socket.emit("message:send", payload);
+    const optimisticMessage: InsertMessage = {
+      ...payload,
+      createdAt: new Date(),
+      id: `temp-${payload.clientMessageId}`
+    }
+
+    saveMessageIDB(optimisticMessage)
+    setMessages([...messages, optimisticMessage])
+
+  };
   return (
     <div className="flex h-svh w-full flex-col bg-background">
       <ChatHeader
         name={displayName}
         imageUrl={conversationData.otherUser.imageUrl ?? ""}
       />
-
-      {/* TOP SENTINEL */}
-      <div ref={topRef} />
-
-      <ChatMessages
-        messages={localMessages}
-        userData={chatUser}
-        isFetchingMore={isFetchingNextPage}
-        onTopReached={fetchOlderMessages}
-      />
-
+      <ChatMessages messages={messages} userData={chatUser} />
       <ChatInput
-        conversationId={conversationId}
+        conversationId={conversationData.conversationId}
         userId={user!.id}
-        sendMessage={sendMessage}
+        sendMessageMutation={sendMessage}
       />
     </div>
   );
