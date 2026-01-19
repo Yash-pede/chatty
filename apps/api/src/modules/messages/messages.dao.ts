@@ -22,16 +22,7 @@ export const messagesDao = {
       : eq(messages.conversationId, conversationId);
 
     return db
-      .select({
-        id: messages.id,
-        sequence: messages.sequence,
-        senderId: messages.senderId,
-        conversationId: messages.conversationId,
-        content: messages.content,
-        type: messages.type,
-        clientMessageId: messages.clientMessageId,
-        createdAt: messages.createdAt,
-      })
+      .select()
       .from(messages)
       .where(whereClause)
       .orderBy(desc(messages.sequence))

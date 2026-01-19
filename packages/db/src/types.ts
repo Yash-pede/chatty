@@ -53,10 +53,10 @@ export type MessageContentType = {
   videoUrl?: string;
 };
 
-export const MessagesFetchResponse = {
-  items: Array<Message>,
+export type MessagesFetchResponse = {
+  items: Message[];
   pageInfo: {
-    hasMore: Boolean,
-    nextCursor: typeof messages.sequence,
-  },
+    hasMore: Boolean;
+    nextCursor: Message["sequence"];
+  };
 };

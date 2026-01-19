@@ -3,13 +3,13 @@ import { MessagesFetchResponse } from "@repo/db/types";
 
 export async function getPaginatedMessages(
   conversationId: string,
-  cursor?: number,
   limit?: number,
+  cursor?: number,
 ) {
   const res = await api.get(`/conversations/${conversationId}/messages`, {
     params: {
-      cursor,
       limit,
+      cursor,
     },
   });
   return res.data as MessagesFetchResponse;

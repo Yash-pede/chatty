@@ -1,5 +1,3 @@
-// File: components/chat/ChatInput.tsx
-
 import { Paperclip, Send, Smile } from "lucide-react";
 import { useRef, useState } from "react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
