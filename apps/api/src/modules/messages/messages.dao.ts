@@ -26,6 +26,7 @@ export const messagesDao = {
         id: messages.id,
         sequence: messages.sequence,
         senderId: messages.senderId,
+        conversationId: messages.conversationId,
         content: messages.content,
         type: messages.type,
         clientMessageId: messages.clientMessageId,

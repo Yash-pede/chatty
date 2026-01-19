@@ -11,6 +11,7 @@ import { useSocket } from "@/lib/sockets/SocketProvider.tsx";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { useMessageStore } from "@/store/messages.store";
+import { getMessagesFromServer } from "@/dbInteractions/queries/message.queries";
 
 export default function ChatView({
   conversationData,
@@ -18,7 +19,7 @@ export default function ChatView({
   conversationData: ConversationWithOtherUser;
 }) {
   const { socket, isConnected } = useSocket();
-  const { messages, setMessages, saveMessageIDB, replaceOptimisticMessage } = useMessageStore()
+  const { messages, setMessages, saveMessageIDB, getMessagesByConversationIdIDB, replaceOptimisticMessage, bulkSaveMessagesIDB, mergeFetchedMessages } = useMessageStore()
 
   const displayName =
     conversationData.otherUser.firstName ??
@@ -33,6 +34,21 @@ export default function ChatView({
     username: user?.username ?? null,
     imageUrl: user?.imageUrl ?? null,
   };
+
+  const getMessages = async (conversationId: string) => {
+    const localMessages = await getMessagesByConversationIdIDB(conversationId)
+    setMessages(localMessages)
+
+    try {
+      const fetchedMessages = await getMessagesFromServer(conversationId, 50)
+      if (!fetchedMessages || fetchedMessages.items.length === 0) return
+      await bulkSaveMessagesIDB(fetchedMessages.items)
+      mergeFetchedMessages(fetchedMessages.items)
+    } catch (err) {
+      toast.error("Message sync failed")
+    }
+  }
+
 
   useEffect(() => {
     if (!socket || !isConnected) return;
@@ -49,8 +65,20 @@ export default function ChatView({
     if (!socket || !isConnected) return;
 
     const handler = async (data: any) => {
-      await replaceOptimisticMessage(data.clientMessageId, data)
-    };
+      if (data.senderId === chatUser?.id) {
+        await replaceOptimisticMessage(data.clientMessageId, data);
+        return;
+      } else {
+        await saveMessageIDB(data)
+        useMessageStore.setState((state) => ({
+          messages: [...state.messages, data].sort(
+            (a, b) =>
+              new Date(a.createdAt).getTime() -
+              new Date(b.createdAt).getTime()
+          ),
+        }));
+      }
+    }
 
     socket.on("message:new", handler);
 
@@ -58,6 +86,11 @@ export default function ChatView({
       socket.off("message:new", handler);
     };
   }, [socket, isConnected]);
+
+  useEffect(() => {
+    getMessages(conversationData.conversationId)
+  }, [conversationData.conversationId])
+
 
 
   // TODO: HANDLE if !socket or error then pop message from indexdb and revert to input box

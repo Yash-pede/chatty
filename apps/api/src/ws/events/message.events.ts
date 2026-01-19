@@ -14,7 +14,6 @@ export function registerMessageEvents(io: Server, socket: Socket) {
     //   event: "message:new",
     //   payload,
     // });
-    await insertMessage(payload);
 
     const membersKey = `conversation:${conversationId}:members`;
     let members = await redis.pub.smembers(membersKey);

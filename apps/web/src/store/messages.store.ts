@@ -9,21 +9,26 @@ type MessagesStore = {
   bulkSaveMessagesIDB: (message: InsertMessage[]) => Promise<void>;
   getMessagesByConversationIdIDB: (conversationId: string) => Promise<InsertMessage[]>;
   replaceOptimisticMessage: (clientMessageId: string, updatedMessage: Message) => Promise<void>
+  mergeFetchedMessages: (fetchedMessages: Message[]) => void
 };
 
 export const useMessageStore = create<MessagesStore>()((set) => ({
   messages: [],
   setMessages: (messages: InsertMessage[]) => set({ messages }),
+
   saveMessageIDB: async (message: InsertMessage) => {
-    await db.messages.add(message);
+    await db.messages.put(message);
   },
+
   bulkSaveMessagesIDB: async (messages: InsertMessage[]) => {
-    await db.messages.bulkAdd(messages);
+    await db.messages.bulkPut(messages);
   },
+
   getMessagesByConversationIdIDB: async (conversationId: string) => {
     const messages = await db.messages.where("conversationId").equals(conversationId).toArray()
     return messages
   },
+
   replaceOptimisticMessage: async (clientMessageId: string, updatedMessage: Message) => {
     await db.messages.update(`temp-${clientMessageId}`, updatedMessage)
     set((state) => ({
@@ -31,5 +36,26 @@ export const useMessageStore = create<MessagesStore>()((set) => ({
         msg.clientMessageId === clientMessageId ? updatedMessage : msg
       ),
     }));
-  }
+  },
+
+  mergeFetchedMessages: (fetchedMessages) =>
+    set((state) => {
+      const map = new Map<string, InsertMessage>();
+
+      state.messages.forEach((m) => {
+        if (m.id) map.set(m.id, m);
+      });
+
+      fetchedMessages.forEach((m) => {
+        map.set(m.id, m); 
+      });
+
+      return {
+        messages: Array.from(map.values()).sort(
+          (a, b) =>
+            new Date(a.createdAt!).getTime() -
+            new Date(b.createdAt!).getTime()
+        ),
+      };
+    }),
 }));
