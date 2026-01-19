@@ -3,9 +3,11 @@ import { Request, Response } from "express";
 import {
   getConversationById,
   getConversationMessages,
+  getConversationParticipantsByConversationId,
   getConversationsByUserIdWithParticipants,
 } from "@/modules/conversations/conversations.service.js";
 import { getAuth } from "@clerk/express";
+import { getUserPresence } from "@/modules/user/user.service.js";
 
 const DEFAULT_LIMIT = 30;
 const MAX_LIMIT = 100;
@@ -37,21 +39,42 @@ export const getConversationController = asyncHandler(
   },
 );
 
-export async function getConversationMessagesController(
-  req: Request,
-  res: Response,
-) {
-  const { conversationId } = req.params;
-  const { userId } = getAuth(req);
+export const getConversationMessagesController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { conversationId } = req.params;
+    const { userId } = getAuth(req);
 
-  const limit = Math.min(Number(req.query.limit) || DEFAULT_LIMIT, MAX_LIMIT);
+    const limit = Math.min(Number(req.query.limit) || DEFAULT_LIMIT, MAX_LIMIT);
 
-  const cursor = req.query.cursor ? Number(req.query.cursor) : undefined;
-  const messageChunk = await getConversationMessages(
-    conversationId,
-    userId!,
-    limit,
-    cursor,
-  );
-  return res.json(messageChunk);
-}
+    const cursor = req.query.cursor ? Number(req.query.cursor) : undefined;
+    const messageChunk = await getConversationMessages(
+      conversationId,
+      userId!,
+      limit,
+      cursor,
+    );
+    return res.json(messageChunk);
+  },
+);
+
+export const getConversationPresenceController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { conversationId } = req.params;
+    const { userId } = getAuth(req);
+
+    const participants =
+      await getConversationParticipantsByConversationId(conversationId);
+
+    const presencePromises = participants
+      .filter((u) => u.userId !== userId)
+      .map(async (participant) => {
+        const p = await getUserPresence(participant.userId);
+        return { userId: participant.userId, status: p };
+      });
+
+    const state: Array<{ userId: string; status: string }> =
+      await Promise.all(presencePromises);
+
+    res.status(200).json(state);
+  },
+);

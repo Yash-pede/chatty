@@ -13,7 +13,7 @@ export function registerMessageEvents(io: Server, socket: Socket) {
     //   event: "message:new",
     //   payload,
     // });
-    await insertMessage(payload);
+    const insertedMessage = await insertMessage(payload);
 
     const membersKey = `conversation:${conversationId}:members`;
     let members = await redis.pub.smembers(membersKey);
@@ -31,7 +31,7 @@ export function registerMessageEvents(io: Server, socket: Socket) {
 
     await redis.pub.publish(
       `conversation:${conversationId}`,
-      JSON.stringify(payload),
+      JSON.stringify(insertedMessage),
     );
   });
 }
