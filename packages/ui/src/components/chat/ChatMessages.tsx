@@ -5,6 +5,7 @@ import { Item, ItemGroup } from "../item.js";
 import { Card } from "../card.js";
 import { useEffect, useRef } from "react";
 import { cn } from "../../lib/utils.js";
+import { format } from "date-fns"
 
 export const ChatMessages = ({
   messages,
@@ -18,9 +19,10 @@ export const ChatMessages = ({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+
   return (
     <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-6">
-      {messages.map((message: ChatMessage) => {
+      {messages?.map((message: ChatMessage) => {
         const isMe = message.senderId === userData?.id;
         return (
           <Item
@@ -63,10 +65,7 @@ export const ChatMessages = ({
             <ItemGroup className="flex-row justify-end gap-1">
               <Item className="p-0 text-xs">
                 {" "}
-                {message.createdAt.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {format(message.createdAt, 'p')}
               </Item>
               {isMe && <CheckCheck size={18} />}
             </ItemGroup>

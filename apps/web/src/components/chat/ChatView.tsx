@@ -1,4 +1,3 @@
-import { Messages } from "@/constants";
 import { useUser } from "@clerk/clerk-react";
 import {
   ChatUser,
@@ -11,6 +10,7 @@ import { ChatMessages } from "@repo/ui/components/chat/ChatMessages";
 import { useSocket } from "@/lib/sockets/SocketProvider.tsx";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { useMessageStore } from "@/store/messages.store";
 
 export default function ChatView({
   conversationData,
@@ -18,6 +18,7 @@ export default function ChatView({
   conversationData: ConversationWithOtherUser;
 }) {
   const { socket, isConnected } = useSocket();
+  const { messages, setMessages, saveMessageIDB, replaceOptimisticMessage } = useMessageStore()
 
   const displayName =
     conversationData.otherUser.firstName ??
@@ -47,8 +48,8 @@ export default function ChatView({
   useEffect(() => {
     if (!socket || !isConnected) return;
 
-    const handler = (data: any) => {
-      console.log("NEW:MESSAGE", data);
+    const handler = async (data: any) => {
+      await replaceOptimisticMessage(data.clientMessageId, data)
     };
 
     socket.on("message:new", handler);
@@ -58,12 +59,22 @@ export default function ChatView({
     };
   }, [socket, isConnected]);
 
+
   // TODO: HANDLE if !socket or error then pop message from indexdb and revert to input box
   // TODO: Insert message payload in index db
   const sendMessage = (payload: InsertMessage) => {
     if (!socket || !isConnected)
       return toast.error("Unable to connect to the server.");
     socket.emit("message:send", payload);
+    const optimisticMessage: InsertMessage = {
+      ...payload,
+      createdAt: new Date(),
+      id: `temp-${payload.clientMessageId}`
+    }
+
+    saveMessageIDB(optimisticMessage)
+    setMessages([...messages, optimisticMessage])
+
   };
   return (
     <div className="flex h-svh w-full flex-col bg-background">
@@ -71,7 +82,7 @@ export default function ChatView({
         name={displayName}
         imageUrl={conversationData.otherUser.imageUrl ?? ""}
       />
-      <ChatMessages messages={Messages} userData={chatUser} />
+      <ChatMessages messages={messages} userData={chatUser} />
       <ChatInput
         conversationId={conversationData.conversationId}
         userId={user!.id}

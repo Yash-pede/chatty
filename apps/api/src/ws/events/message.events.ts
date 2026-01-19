@@ -7,6 +7,7 @@ import { getConversationParticipantsByConversationId } from "@/modules/conversat
 export function registerMessageEvents(io: Server, socket: Socket) {
   const redis = RedisManager.get();
   socket.on("message:send", async (payload: InsertMessage) => {
+    const insertedMessage = await insertMessage(payload);
     const { conversationId } = payload;
 
     // logger.info({
@@ -29,9 +30,9 @@ export function registerMessageEvents(io: Server, socket: Socket) {
 
     //TODO: UnredCount
 
-    await redis.pub.publish(
+     await redis.pub.publish(
       `conversation:${conversationId}`,
-      JSON.stringify(payload),
+      JSON.stringify(insertedMessage),
     );
   });
 }

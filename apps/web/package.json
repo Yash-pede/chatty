@@ -19,6 +19,7 @@
     "@tanstack/zod-adapter": "^1.144.0",
     "axios": "^1.13.2",
     "dayjs": "^1.11.19",
+    "dexie": "^4.2.1",
     "lucide-react": "catalog:",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
