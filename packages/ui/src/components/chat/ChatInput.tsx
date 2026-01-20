@@ -1,5 +1,3 @@
-// File: components/chat/ChatInput.tsx
-
 import { Paperclip, Send, Smile } from "lucide-react";
 import { useRef, useState } from "react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
@@ -8,17 +6,18 @@ import { Button } from "../button.js";
 import { Input } from "../input.js";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover.js";
 import { InsertMessage } from "@repo/db/types";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../tooltip.js";
 
 type ChatInputProps = {
   userId: string;
   conversationId: string;
-  sendMessageMutation: (payload: InsertMessage) => any;
+  sendMessage: (payload: InsertMessage) => any;
 };
 
 export const ChatInput = ({
   userId,
   conversationId,
-  sendMessageMutation,
+  sendMessage,
 }: ChatInputProps) => {
   const [emojiOpen, setEmojiOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -38,7 +37,7 @@ export const ChatInput = ({
       content: { text },
     };
 
-    await sendMessageMutation(payload);
+    await sendMessage(payload);
     inputEl.value = "";
   };
 
@@ -82,9 +81,16 @@ export const ChatInput = ({
       </Popover>
 
       {/* Attachment */}
-      <Button size="icon" variant="ghost">
-        <Paperclip className="h-4 w-4" />
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button size="icon" variant="ghost">
+            <Paperclip className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Coming Soon</p>
+        </TooltipContent>
+      </Tooltip>
 
       {/* Input */}
       <Input

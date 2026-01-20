@@ -1,16 +1,17 @@
 import { CheckCheck, FileText, Play } from "lucide-react";
 import { Button } from "../button.js";
-import { ChatMessage, ChatUser, MessageContentType } from "@repo/db/types";
+import { ChatUser, Message, MessageContentType } from "@repo/db/types";
 import { Item, ItemGroup } from "../item.js";
 import { Card } from "../card.js";
 import { useEffect, useRef } from "react";
 import { cn } from "../../lib/utils.js";
+import { format } from "date-fns";
 
 export const ChatMessages = ({
   messages,
   userData,
 }: {
-  messages: ChatMessage[];
+  messages: Message[];
   userData: ChatUser;
 }) => {
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -20,7 +21,7 @@ export const ChatMessages = ({
 
   return (
     <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-6">
-      {messages.map((message: ChatMessage) => {
+      {messages?.map((message: Message) => {
         const isMe = message.senderId === userData?.id;
         return (
           <Item
@@ -33,7 +34,12 @@ export const ChatMessages = ({
           >
             {/* TEXT MESSAGE */}
             {message.type === "text" && (
-              <Item className="leading-relaxed p-0">
+              <Item
+                className={cn(
+                  "p-0 leading-relaxed",
+                  isMe ? "text-right" : "text-left w-full",
+                )}
+              >
                 {(message.content as MessageContentType)?.text}
               </Item>
             )}
@@ -63,10 +69,7 @@ export const ChatMessages = ({
             <ItemGroup className="flex-row justify-end gap-1">
               <Item className="p-0 text-xs">
                 {" "}
-                {message.createdAt.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {format(message.createdAt, "p")}
               </Item>
               {isMe && <CheckCheck size={18} />}
             </ItemGroup>

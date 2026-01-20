@@ -19,13 +19,15 @@
     "@tanstack/zod-adapter": "^1.144.0",
     "axios": "^1.13.2",
     "dayjs": "^1.11.19",
+    "dexie": "^4.2.1",
     "lucide-react": "catalog:",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
-    "zod": "^4.1.13",
     "react-hook-form": "^7.70.0",
+    "socket.io-client": "^4.8.3",
     "sonner": "^2.0.7",
-    "socket.io-client": "^4.8.3"
+    "zod": "^4.1.13",
+    "zustand": "^5.0.10"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

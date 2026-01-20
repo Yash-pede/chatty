@@ -3,6 +3,7 @@ import { BadRequestError } from "@/core/errors/AppError.js";
 import { ClerkUserUpdate, InsertUser } from "@repo/db/types";
 import { rolesAndPermissionsDao } from "@/modules/roles_permissions/roles_permissions.dao.js";
 import { clerkClient } from "@clerk/express";
+import { RedisManager } from "@/redis/RedisManager.js";
 
 export const createUser = async (data: InsertUser & { role: string }) => {
   const roles = await rolesAndPermissionsDao.getAllRoles();
@@ -52,4 +53,11 @@ export const updateClerkUser = async (
   params: ClerkUserUpdate,
 ) => {
   return await clerkClient.users.updateUser(userId, params);
+};
+
+export const getUserPresence = async (userId: string) => {
+  const redis = RedisManager.get();
+  const presence = await redis.pub.get(`presence:${userId}`);
+  // logger.info(`${userId} is ${presence}`);
+  return presence ?? "offline";
 };

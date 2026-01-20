@@ -16,3 +16,8 @@ export async function getConversation(conversationId: string) {
     data: ConversationWithOtherUser;
   };
 }
+
+export async function getConversationPresence(conversationId: string) {
+  const res = await api.get(`/conversations/${conversationId}/presence`);
+  return res.data as Array<{ userId: string; status: string }>;
+}
