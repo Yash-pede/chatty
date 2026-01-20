@@ -177,7 +177,15 @@ module "ecs" {
             {
               name      = "CLERK_WEBHOOK_SIGNING_SECRET"
               valueFrom = "${data.aws_secretsmanager_secret.chatty_env.arn}:CLERK_WEBHOOK_SIGNING_SECRET::"
-            }
+            },
+            {
+              name      = "REDIS_HOST"
+              valueFrom = "${data.aws_secretsmanager_secret.chatty_env.arn}:REDIS_HOST::"
+            },
+            {
+              name      = "REDIS_PORT"
+              valueFrom = "${data.aws_secretsmanager_secret.chatty_env.arn}:REDIS_PORT::"
+            },
           ]
 
           enable_cloudwatch_logging = true
