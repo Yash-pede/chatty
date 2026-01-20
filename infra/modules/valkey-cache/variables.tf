@@ -18,18 +18,6 @@ variable "api_security_group_id" {
   type        = string
 }
 
-variable "max_storage_gb" {
-  description = "Maximum Valkey storage in GB"
-  type        = number
-  default     = 10
-}
-
-variable "max_ecpu" {
-  description = "Maximum eCPU per second"
-  type        = number
-  default     = 10000
-}
-
 variable "tags" {
   description = "Tags to apply"
   type = map(string)

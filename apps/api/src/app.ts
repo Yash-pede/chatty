@@ -11,6 +11,7 @@ import http from "http";
 import { socketServer } from "@/ws/socket.instance.js";
 import { RedisManager } from "@/redis/RedisManager.js";
 import { env } from "@/config/env.js";
+import { getAppVersion } from "@/version.js";
 
 const app = express();
 export const server = http.createServer(app);
@@ -18,6 +19,10 @@ export const server = http.createServer(app);
 RedisManager.init({
   host: env.REDIS_HOST,
   port: Number(env.REDIS_PORT),
+  // tls: {},
+  // maxRetriesPerRequest: 3,
+  // enableReadyCheck: true,
+  lazyConnect: false,
 });
 
 socketServer.init(server);
@@ -38,6 +43,20 @@ app.use(
 //   next();
 // });
 
+app.get("/eversion", async (_, res) => {
+  const version = await getAppVersion();
+  res.json({
+    version,
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development",
+  });
+});
+
+app.get("/", async (req, res) => {
+  logger.info("THE SERVER IS UP AND HEALTHY");
+  res.status(200).send("THE SERVER IS UP AND HEALTHY");
+});
+
 app.use(requestLogger);
 app.use(clerkMiddleware());
 
@@ -47,11 +66,6 @@ app.use(webhookRouter);
 
 app.get("/health", (_, res) => {
   res.status(200).send("ok");
-});
-
-app.get("/", async (req, res) => {
-  logger.info("THE SERVER IS UP AND HEALTHY");
-  res.status(200).send("THE SERVER IS UP AND HEALTHY");
 });
 
 app.use(express.json());

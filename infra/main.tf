@@ -97,11 +97,15 @@ module "chat_cache" {
   private_subnet_ids    = aws_subnet.private[*].id
   api_security_group_id = module.backend_ecs.api_security_group_id
 
-  max_storage_gb = 10
-  max_ecpu       = 10000
-
   tags = {
     Project = "chat-app"
     Env     = "prod"
   }
 }
+
+# aws ecs execute-command \
+# --cluster chatty-cluster \
+# --task <task-id> \
+# --container chatty-container \
+# --command "/bin/sh" \
+# --interactive

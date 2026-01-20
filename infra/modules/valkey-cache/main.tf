@@ -21,27 +21,28 @@ resource "aws_security_group" "valkey" {
   tags = var.tags
 }
 
-resource "aws_elasticache_serverless_cache" "this" {
-  name        = var.name
-  description = "Valkey serverless cache for ${var.name}"
-  engine      = "valkey"
 
+resource "aws_elasticache_subnet_group" "this" {
+  name = "${var.name}-subnet-group"
   subnet_ids = var.private_subnet_ids
+}
 
-  security_group_ids = [
-    aws_security_group.valkey.id
-  ]
 
-  cache_usage_limits {
-    data_storage {
-      maximum = var.max_storage_gb
-      unit    = "GB"
-    }
+resource "aws_elasticache_replication_group" "this" {
+  replication_group_id = "valkey-cluster"
+  description          = "A Valkey cluster"
+  engine               = "valkey"
+  engine_version = "7.2"               # Specify the desired engine version (e.g., 7.2)
+  node_type = "cache.t4g.micro"   # Choose an appropriate node type
+  num_cache_clusters = 1                   # Number of nodes (primary + replica)
+  port                 = 6379
+  subnet_group_name    = aws_elasticache_subnet_group.this.name
+  security_group_ids = [aws_security_group.valkey.id]
+  # automatic_failover_enabled = true
+  # snapshot_retention_limit   = 7
+  apply_immediately    = true # Apply changes immediately instead of during maintenance window
 
-    ecpu_per_second {
-      maximum = var.max_ecpu
-    }
-  }
-
-  tags = var.tags
+  # Optional: Enforce encryption in transit and at rest for security
+  transit_encryption_enabled = true
+  at_rest_encryption_enabled = true
 }

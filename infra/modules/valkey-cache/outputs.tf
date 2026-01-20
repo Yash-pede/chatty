@@ -1,6 +1,6 @@
 output "endpoint" {
   description = "Valkey endpoint hostname"
-  value       = aws_elasticache_serverless_cache.this.endpoint
+  value = aws_elasticache_replication_group.this.primary_endpoint_address
 }
 
 output "port" {
