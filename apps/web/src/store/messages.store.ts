@@ -40,10 +40,7 @@ export const useMessageStore = create<MessagesStore>()((set) => ({
     clientMessageId: string,
     updatedMessage: Message,
   ) => {
-    await db.messages
-      .where("clientMessageId")
-      .equals(clientMessageId)
-      .modify(updatedMessage);
+    await db.messages.put(updatedMessage);
 
     set((state) => ({
       messages: state.messages.map((msg) =>

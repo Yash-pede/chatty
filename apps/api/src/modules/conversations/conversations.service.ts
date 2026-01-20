@@ -63,7 +63,7 @@ export const getConversationMessages = async (
     userId,
   );
   if (participant.length === 0) {
-    throw new BadRequestError("User Not a part of conversation", 403);
+    throw new BadRequestError("User is not part of the conversation", 403);
   }
 
   const messages = await getMessages(conversationId, limit, cursor);

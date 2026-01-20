@@ -10,7 +10,7 @@ export function registerConversationEvents(io: Server, socket: Socket) {
     const participants =
       await getConversationParticipantsByConversationId(conversationId);
     socket.join(`conversation:${conversationId}`);
-    participants.map(async (participant) => {
+    participants.forEach((participant) => {
       if (userId === participant.userId) return;
       socket.join(`presence:${participant.userId}`);
     });

@@ -44,8 +44,11 @@ export const getConversationMessagesController = asyncHandler(
     const { conversationId } = req.params;
     const { userId } = getAuth(req);
 
-    const limit = Math.min(Number(req.query.limit) || DEFAULT_LIMIT, MAX_LIMIT);
-
+    const rawLimit = Number(req.query.limit);
+    const limit = Math.min(
+      Math.max(Number.isFinite(rawLimit) ? rawLimit : DEFAULT_LIMIT, 1),
+      MAX_LIMIT,
+    );
     const cursor = req.query.cursor ? Number(req.query.cursor) : undefined;
     const messageChunk = await getConversationMessages(
       conversationId,
@@ -53,6 +56,7 @@ export const getConversationMessagesController = asyncHandler(
       limit,
       cursor,
     );
+
     return res.json(messageChunk);
   },
 );

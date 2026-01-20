@@ -88,18 +88,20 @@ export default function ChatView({
       const localMessages =
         await getMessagesByConversationIdIDB(conversationId);
       setMessages(localMessages);
-
       try {
+        const cursor =
+          localMessages.length > 0
+            ? localMessages[localMessages.length - 1].sequence
+            : undefined;
         const fetchedMessages = await getPaginatedMessages(
           conversationId,
           30,
-          localMessages[localMessages.length - 1].sequence,
+          cursor,
         );
         if (!fetchedMessages || !fetchedMessages.items.length) return;
         await bulkSaveMessagesIDB(fetchedMessages.items);
         const updatedMessages =
           await getMessagesByConversationIdIDB(conversationId);
-
         setMessages(updatedMessages);
       } catch (err) {
         toast.error("Message sync failed");
