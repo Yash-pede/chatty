@@ -1,5 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { RedisManager } from "@/redis/RedisManager.js";
+import { logger } from "@/core/logger.js";
 
 export function registerPresenceEvents(io: Server, socket: Socket) {
   const userId = socket.data.userId;
