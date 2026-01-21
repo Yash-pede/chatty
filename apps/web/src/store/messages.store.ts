@@ -40,18 +40,11 @@ export const useMessageStore = create<MessagesStore>()((set) => ({
     clientMessageId: string,
     updatedMessage: Message,
   ) => {
-    const tempId = `temp-${clientMessageId}`;
-    await db.messages.delete(tempId);
-
-    await db.messages.put(updatedMessage);
-
+    await db.messages.update(`temp-${clientMessageId}`, updatedMessage);
     set((state) => ({
-      messages: state.messages.map((msg) => {
-        if (msg.clientMessageId === clientMessageId) {
-          return updatedMessage;
-        }
-        return msg;
-      }),
+      messages: state.messages.map((msg) =>
+        msg.clientMessageId === clientMessageId ? updatedMessage : msg,
+      ),
     }));
   },
 }));
