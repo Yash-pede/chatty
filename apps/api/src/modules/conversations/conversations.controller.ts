@@ -4,7 +4,7 @@ import {
   getConversationById,
   getConversationMessages,
   getConversationParticipantsByConversationId,
-  getConversationsByUserIdWithParticipants
+  getConversationsByUserIdWithParticipants,
 } from "@/modules/conversations/conversations.service.js";
 import { getAuth } from "@clerk/express";
 import { getUserPresence } from "@/modules/user/user.service.js";

@@ -7,13 +7,21 @@ resource "aws_security_group" "alb_sg" {
   description = "Allow HTTP traffic from internet"
   vpc_id = var.vpc_id
 
+  # ingress {
+  #   from_port = 80
+  #   to_port   = 80
+  #   protocol  = "tcp"
+  #   # cidr_blocks = [var.vpc_cidr_block]
+  #   #   API GATEWAY SG
+  #   security_groups = [var.apigw_sg_id]
+  # }
+
   ingress {
-    from_port = 80
-    to_port   = 80
-    protocol  = "tcp"
-    # cidr_blocks = [var.vpc_cidr_block]
-    #   API GATEWAY SG
-    security_groups = [var.apigw_sg_id]
+    description = "Allow CloudFront/Public Traffic"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -27,9 +35,9 @@ resource "aws_security_group" "alb_sg" {
 resource "aws_lb" "chatty_alb" {
   name               = "chatty-alb"
   load_balancer_type = "application"
-  subnets  = var.private_subnet_ids
+  subnets  = var.public_subnet_ids
   security_groups    = [aws_security_group.alb_sg.id]
-  internal = true
+  internal = false
   idle_timeout = 3600
 }
 
@@ -39,6 +47,12 @@ resource "aws_lb_target_group" "chatty_tg" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id = var.vpc_id
+
+  stickiness {
+    enabled         = true
+    type            = "lb_cookie"
+    cookie_duration = 1800 # Duration in seconds (30 minutes). Range is 1 second to 1 week (604800s).
+  }
 
   health_check {
     path                = "/health"

@@ -38,10 +38,11 @@ module "frontend_bucket" {
 }
 
 module "frontend_cdn" {
-  source             = "./modules/cloudfront"
-  bucket_domain_name = module.frontend_bucket.bucket_domain_name
-  bucket_arn         = module.frontend_bucket.bucket_arn
-  bucket_name        = module.frontend_bucket.bucket_name
+  source              = "./modules/cloudfront"
+  bucket_domain_name  = module.frontend_bucket.bucket_domain_name
+  bucket_arn          = module.frontend_bucket.bucket_arn
+  bucket_name         = module.frontend_bucket.bucket_name
+  chatty_alb_dns_name = module.backend_ecs.chatty_alb_dns_name
 }
 
 module "rds" {
@@ -71,8 +72,8 @@ module "backend_ecs" {
   vpc_id             = module.vpc.vpc_id
   private_subnet_ids = module.vpc.private_subnets
   public_subnet_ids  = module.vpc.public_subnets
-  apigw_sg_id        = module.api_gateway_security_group.security_group_id
-  vpc_cidr_block     = module.vpc.vpc_cidr_block
+  # apigw_sg_id        = module.api_gateway_security_group.security_group_id
+  vpc_cidr_block = module.vpc.vpc_cidr_block
 }
 
 module "chat_cache" {
@@ -98,75 +99,75 @@ module "chat_cache" {
 #
 
 
-module "api_gateway_security_group" {
-  source = "terraform-aws-modules/security-group/aws"
-
-  name        = local.name
-  description = "API Gateway group for example usage"
-  vpc_id      = module.vpc.vpc_id
-
-  ingress_cidr_blocks = ["0.0.0.0/0"]
-  ingress_rules = ["http-80-tcp"]
-
-  egress_rules = ["all-all"]
-
-  tags = local.tags
-}
-
-module "api_gateway" {
-  source = "terraform-aws-modules/apigateway-v2/aws"
-
-  name          = "chatty-http-api"
-  description   = "HTTP API Gateway in front of ALB"
-  protocol_type = "HTTP"
-
-  cors_configuration = {
-    allow_origins = ["*"]
-    allow_methods = ["*"]
-    allow_headers = ["*"]
-  }
-
-  create_domain_name = false
-  hosted_zone_name   = ""
-
-  #################################
-  # VPC LINK (API Gateway → ALB)
-  #################################
-  vpc_links = {
-    alb = {
-      name       = "chatty-alb-vpc-link"
-      subnet_ids = module.vpc.private_subnets
-      security_group_ids = [module.api_gateway_security_group.security_group_id]
-    }
-  }
-
-  #################################
-  # ROUTES
-  #################################
-  routes = {
-    "ANY /{proxy+}" = {
-      integration = {
-        type            = "HTTP_PROXY"
-        uri             = module.backend_ecs.listener_arn
-        method          = "ANY"
-        connection_type = "VPC_LINK"
-        vpc_link_key    = "alb"
-      }
-    }
-
-    "ANY /" = {
-      integration = {
-        type            = "HTTP_PROXY"
-        uri             = module.backend_ecs.listener_arn
-        method          = "ANY"
-        connection_type = "VPC_LINK"
-        vpc_link_key    = "alb"
-      }
-    }
-  }
-
-  tags = {
-    Project = "chatty"
-    Env     = "dev"
-  }
-}
+# module "api_gateway_security_group" {
+#   source = "terraform-aws-modules/security-group/aws"
+#
+#   name        = local.name
+#   description = "API Gateway group for example usage"
+#   vpc_id      = module.vpc.vpc_id
+#
+#   ingress_cidr_blocks = ["0.0.0.0/0"]
+#   ingress_rules = ["http-80-tcp"]
+#
+#   egress_rules = ["all-all"]
+#
+#   tags = local.tags
+# }
+#
+# module "api_gateway" {
+#   source = "terraform-aws-modules/apigateway-v2/aws"
+#
+#   name          = "chatty-http-api"
+#   description   = "HTTP API Gateway in front of ALB"
+#   protocol_type = "HTTP"
+#
+#   cors_configuration = {
+#     allow_origins = ["*"]
+#     allow_methods = ["*"]
+#     allow_headers = ["*"]
+#   }
+#
+#   create_domain_name = false
+#   hosted_zone_name   = ""
+#
+#   #################################
+#   # VPC LINK (API Gateway → ALB)
+#   #################################
+#   vpc_links = {
+#     alb = {
+#       name       = "chatty-alb-vpc-link"
+#       subnet_ids = module.vpc.private_subnets
+#       security_group_ids = [module.api_gateway_security_group.security_group_id]
+#     }
+#   }
+#
+#   #################################
+#   # ROUTES
+#   #################################
+#   routes = {
+#     "ANY /{proxy+}" = {
+#       integration = {
+#         type            = "HTTP_PROXY"
+#         uri             = module.backend_ecs.listener_arn
+#         method          = "ANY"
+#         connection_type = "VPC_LINK"
+#         vpc_link_key    = "alb"
+#       }
+#     }
+#
+#     "ANY /" = {
+#       integration = {
+#         type            = "HTTP_PROXY"
+#         uri             = module.backend_ecs.listener_arn
+#         method          = "ANY"
+#         connection_type = "VPC_LINK"
+#         vpc_link_key    = "alb"
+#       }
+#     }
+#   }
+#
+#   tags = {
+#     Project = "chatty"
+#     Env     = "dev"
+#   }
+# }

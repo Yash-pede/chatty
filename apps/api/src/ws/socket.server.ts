@@ -31,6 +31,9 @@ export class SocketServer {
     setupRedisSubscriber(this.io);
 
     this.io.on("connection", (socket) => {
+      logger.info(
+        "[WS]: Connected to the server " + this.path + socket.data.userId,
+      );
       registerPresenceEvents(this.io, socket);
       registerMessageEvents(this.io, socket);
       registerConversationEvents(this.io, socket);

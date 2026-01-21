@@ -9,3 +9,7 @@ variable "bucket_arn" {
 variable "bucket_name" {
   type = string
 }
+
+variable "chatty_alb_dns_name" {
+  type = string
+}

@@ -20,10 +20,10 @@ variable "public_subnet_ids" {
   description = "Subnet IDs for RDS"
 }
 
-variable "apigw_sg_id" {
-  type        = string
-  description = "Security group for API Gateway"
-}
+# variable "apigw_sg_id" {
+#   type        = string
+#   description = "Security group for API Gateway"
+# }
 
 variable "vpc_cidr_block" {
   type = string
