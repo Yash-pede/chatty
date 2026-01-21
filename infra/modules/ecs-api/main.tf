@@ -1,35 +1,19 @@
-data "aws_vpc" "default" {
-  default = true
-}
-
-data "aws_subnets" "public" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
-  }
-
-  filter {
-    name   = "map-public-ip-on-launch"
-    values = ["true"]
-  }
-}
-
-
 data "aws_secretsmanager_secret" "chatty_env" {
   name = "chatty/backend/env"
 }
 
-
 resource "aws_security_group" "alb_sg" {
   name        = "chatty-alb-sg"
   description = "Allow HTTP traffic from internet"
-  vpc_id      = data.aws_vpc.default.id
+  vpc_id = var.vpc_id
 
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port = 80
+    to_port   = 80
+    protocol  = "tcp"
+    # cidr_blocks = [var.vpc_cidr_block]
+    #   API GATEWAY SG
+    security_groups = [var.apigw_sg_id]
   }
 
   egress {
@@ -43,9 +27,9 @@ resource "aws_security_group" "alb_sg" {
 resource "aws_lb" "chatty_alb" {
   name               = "chatty-alb"
   load_balancer_type = "application"
-  subnets            = data.aws_subnets.public.ids
+  subnets  = var.private_subnet_ids
   security_groups    = [aws_security_group.alb_sg.id]
-
+  internal = true
   idle_timeout = 3600
 }
 
@@ -54,7 +38,7 @@ resource "aws_lb_target_group" "chatty_tg" {
   port        = 8080
   protocol    = "HTTP"
   target_type = "ip"
-  vpc_id      = data.aws_vpc.default.id
+  vpc_id = var.vpc_id
 
   health_check {
     path                = "/health"
@@ -80,7 +64,7 @@ resource "aws_lb_listener" "http" {
 resource "aws_security_group" "ecs_sg" {
   name        = "chatty-ecs-sg"
   description = "Allow ALB to reach ECS tasks"
-  vpc_id      = data.aws_vpc.default.id
+  vpc_id = var.vpc_id
 
   ingress {
     from_port       = 8080
@@ -102,17 +86,18 @@ module "ecs" {
 
   cluster_name = "chatty-cluster"
 
+  # cluster_capacity_providers = ["FARGATE", "FARGATE_SPOT"]
+  # default_capacity_provider_strategy = {
+  #   FARGATE = {
+  #     base   = 1
+  #     weight = 1
+  #   }
+  #   FARGATE_SPOT = {
+  #     base   = 0
+  #     weight = 2
+  #   }
+  # }
 
-  default_capacity_provider_strategy = {
-    FARGATE = {
-      base   = 1
-      weight = 1
-    }
-    FARGATE_SPOT = {
-      base   = 0
-      weight = 2
-    }
-  }
   create_task_exec_iam_role = true
   create_task_exec_policy   = true
   # task_exec_ssm_param_arns = [
@@ -136,12 +121,12 @@ module "ecs" {
       memory        = 2048
       launch_type   = "FARGATE"
 
-      assign_public_ip          = true
+      assign_public_ip = false
       enable_execute_command    = false
       create_task_exec_iam_role = false
       create_task_exec_policy   = false
 
-      subnet_ids         = data.aws_subnets.public.ids
+      subnet_ids = var.private_subnet_ids
       security_group_ids = [aws_security_group.ecs_sg.id]
 
       container_definitions = {

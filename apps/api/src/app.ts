@@ -25,6 +25,8 @@ RedisManager.init({
   lazyConnect: false,
 });
 
+console.log("REDIS::::", env.REDIS_HOST, env.REDIS_PORT);
+
 socketServer.init(server);
 
 app.use(

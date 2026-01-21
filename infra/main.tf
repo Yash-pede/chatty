@@ -2,54 +2,33 @@ provider "aws" {
   region = "ap-south-1"
 }
 
-data "aws_vpc" "default" {
-  default = true
-}
-
-data "aws_subnets" "public" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
-  }
-
-  filter {
-    name   = "map-public-ip-on-launch"
-    values = ["true"]
-  }
-}
-
-
-data "aws_availability_zones" "available" {
-  # Exclude local zones
-  filter {
-    name   = "opt-in-status"
-    values = ["opt-in-not-required"]
-  }
-}
-resource "aws_subnet" "private" {
-  count = 2
-
-  vpc_id                  = data.aws_vpc.default.id
-  cidr_block = cidrsubnet(data.aws_vpc.default.cidr_block, 8, count.index + 100)
-  availability_zone       = data.aws_availability_zones.available.names[count.index]
-  map_public_ip_on_launch = false
-
-  tags = {
-    Name = "chatty-private-${count.index}"
-  }
-}
+data "aws_availability_zones" "available" {}
 
 locals {
-  region = "ap-south-1"
-  name   = "chatty"
+  name = "chatty"
 
   vpc_cidr = "10.0.0.0/16"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
 
   tags = {
     Name = local.name
-    # Example = local.name
   }
+}
+
+module "vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+
+  name = local.name
+  cidr = local.vpc_cidr
+  azs  = local.azs
+
+  public_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]     # /24
+  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 3)] # /24
+
+  enable_nat_gateway = true
+  single_nat_gateway = true
+
+  tags = local.tags
 }
 
 
@@ -72,6 +51,8 @@ module "rds" {
   db_password   = var.db_password
   allowed_cidrs = ["0.0.0.0/0"]
   is_public     = true
+  db_subnet_ids = module.vpc.public_subnets
+  vpc_id        = module.vpc.vpc_id
 }
 
 resource "aws_ecr_repository" "api-ecr" {
@@ -84,28 +65,108 @@ resource "aws_ecr_repository" "api-ecr" {
 }
 
 module "backend_ecs" {
-  source         = "./modules/ecs-api"
-  ecr_repo_url   = aws_ecr_repository.api-ecr.repository_url
-  container_port = 8080
+  source             = "./modules/ecs-api"
+  ecr_repo_url       = aws_ecr_repository.api-ecr.repository_url
+  container_port     = 8080
+  vpc_id             = module.vpc.vpc_id
+  private_subnet_ids = module.vpc.private_subnets
+  public_subnet_ids  = module.vpc.public_subnets
+  apigw_sg_id        = module.api_gateway_security_group.security_group_id
+  vpc_cidr_block     = module.vpc.vpc_cidr_block
 }
 
 module "chat_cache" {
   source = "./modules/valkey-cache"
 
-  name                  = "chat-app-cache"
-  vpc_id                = data.aws_vpc.default.id
-  private_subnet_ids    = aws_subnet.private[*].id
-  api_security_group_id = module.backend_ecs.api_security_group_id
+  name               = "chat-app-cache"
+  vpc_id             = module.vpc.vpc_id
+  private_subnet_ids = module.vpc.private_subnets
+  ecs_sg             = module.backend_ecs.ecs_sg
 
   tags = {
     Project = "chat-app"
     Env     = "prod"
   }
 }
+#
+# # aws ecs execute-command \
+# # --cluster chatty-cluster \
+# # --task <task-id> \
+# # --container chatty-container \
+# # --command "/bin/sh" \
+# # --interactive
+#
 
-# aws ecs execute-command \
-# --cluster chatty-cluster \
-# --task <task-id> \
-# --container chatty-container \
-# --command "/bin/sh" \
-# --interactive
+
+module "api_gateway_security_group" {
+  source = "terraform-aws-modules/security-group/aws"
+
+  name        = local.name
+  description = "API Gateway group for example usage"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress_cidr_blocks = ["0.0.0.0/0"]
+  ingress_rules = ["http-80-tcp"]
+
+  egress_rules = ["all-all"]
+
+  tags = local.tags
+}
+
+module "api_gateway" {
+  source = "terraform-aws-modules/apigateway-v2/aws"
+
+  name          = "chatty-http-api"
+  description   = "HTTP API Gateway in front of ALB"
+  protocol_type = "HTTP"
+
+  cors_configuration = {
+    allow_origins = ["*"]
+    allow_methods = ["*"]
+    allow_headers = ["*"]
+  }
+
+  create_domain_name = false
+  hosted_zone_name   = ""
+
+  #################################
+  # VPC LINK (API Gateway → ALB)
+  #################################
+  vpc_links = {
+    alb = {
+      name       = "chatty-alb-vpc-link"
+      subnet_ids = module.vpc.private_subnets
+      security_group_ids = [module.api_gateway_security_group.security_group_id]
+    }
+  }
+
+  #################################
+  # ROUTES
+  #################################
+  routes = {
+    "ANY /{proxy+}" = {
+      integration = {
+        type            = "HTTP_PROXY"
+        uri             = module.backend_ecs.listener_arn
+        method          = "ANY"
+        connection_type = "VPC_LINK"
+        vpc_link_key    = "alb"
+      }
+    }
+
+    "ANY /" = {
+      integration = {
+        type            = "HTTP_PROXY"
+        uri             = module.backend_ecs.listener_arn
+        method          = "ANY"
+        connection_type = "VPC_LINK"
+        vpc_link_key    = "alb"
+      }
+    }
+  }
+
+  tags = {
+    Project = "chatty"
+    Env     = "dev"
+  }
+}

@@ -13,8 +13,8 @@ variable "private_subnet_ids" {
   type = list(string)
 }
 
-variable "api_security_group_id" {
-  description = "Security group ID of the API service"
+variable "ecs_sg" {
+  description = "Security group ID of ECS"
   type        = string
 }
 

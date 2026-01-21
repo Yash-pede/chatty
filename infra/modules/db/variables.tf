@@ -25,3 +25,13 @@ variable "allowed_cidrs" {
   description = "CIDR blocks allowed to access Postgres"
   default     = ["0.0.0.0/0"]
 }
+
+variable "vpc_id" {
+  type        = string
+  description = "VPC ID"
+}
+
+variable "db_subnet_ids" {
+  type = list(string)
+  description = "Subnet IDs for RDS"
+}

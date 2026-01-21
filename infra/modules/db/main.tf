@@ -1,25 +1,11 @@
 
 # -----------------------------
-# VPC (use default for sandbox)
-# -----------------------------
-data "aws_vpc" "default" {
-  default = true
-}
-
-data "aws_subnets" "default" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
-  }
-}
-
-# -----------------------------
 # Security Group for RDS
 # -----------------------------
 resource "aws_security_group" "rds" {
   name        = "chatty-rds-sg"
   description = "Allow PostgreSQL access from backend only"
-  vpc_id      = data.aws_vpc.default.id
+  vpc_id = var.vpc_id
 
   ingress {
     description = "Postgres from backend (temporary open for sandbox)"
@@ -47,7 +33,7 @@ resource "aws_security_group" "rds" {
 # -----------------------------
 resource "aws_db_subnet_group" "this" {
   name       = "chatty-db-subnet-group"
-  subnet_ids = data.aws_subnets.default.ids
+  subnet_ids = var.db_subnet_ids
 
   tags = {
     Name = "chatty-db-subnet-group"
@@ -77,10 +63,10 @@ resource "aws_db_parameter_group" "this" {
 resource "aws_db_instance" "this" {
   identifier = "chatty-postgres"
 
-  engine               = "postgres"
-  engine_version       = "18.1"
-  instance_class       = "db.t4g.micro"
-  allocated_storage    = 20
+  engine            = "postgres"
+  engine_version    = "18.1"
+  instance_class    = "db.t4g.micro"
+  allocated_storage = 20
   max_allocated_storage = 50
 
   db_name  = var.db_name
@@ -89,7 +75,7 @@ resource "aws_db_instance" "this" {
 
   db_subnet_group_name   = aws_db_subnet_group.this.name
   vpc_security_group_ids = [aws_security_group.rds.id]
-  parameter_group_name  = aws_db_parameter_group.this.name
+  parameter_group_name = aws_db_parameter_group.this.name
 
   publicly_accessible = var.is_public
   skip_final_snapshot = true
