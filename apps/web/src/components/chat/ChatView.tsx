@@ -8,7 +8,7 @@ import {
 import { ChatHeader } from "@repo/ui/components/chat/ChatHeader";
 import { ChatInput } from "@repo/ui/components/chat/ChatInput";
 import { ChatMessages } from "@repo/ui/components/chat/ChatMessages";
-import { useSocket } from "@/lib/sockets/SocketProvider.tsx";
+import { useSocket } from "@/lib/sockets/SocketProvider";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { useMessageStore } from "@/store/messages.store";
@@ -29,49 +29,58 @@ export default function ChatView({
     bulkSaveMessagesIDB,
   } = useMessageStore();
 
+  const { user } = useUser();
+
+  // Memoize chatUser to prevent unnecessary effect triggers
+  const chatUser: ChatUser | null = user
+    ? {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        imageUrl: user.imageUrl,
+      }
+    : null;
+
   const displayName =
     conversationData.otherUser.firstName ??
     conversationData.otherUser.username ??
     "Unknown";
 
-  const { user } = useUser();
-  const chatUser: ChatUser = {
-    id: user?.id ?? "",
-    firstName: user?.firstName ?? null,
-    lastName: user?.lastName ?? null,
-    username: user?.username ?? null,
-    imageUrl: user?.imageUrl ?? null,
-  };
-
+  // 1. Join/Leave Room
   useEffect(() => {
-    if (!socket || !isConnected) return;
-    if (!conversationData.conversationId) return;
+    if (!socket || !isConnected || !conversationData.conversationId) return;
 
     socket.emit("conversation:join", conversationData.conversationId);
-
     return () => {
       socket.emit("conversation:leave", conversationData.conversationId);
     };
   }, [conversationData.conversationId, socket, isConnected]);
 
+  // 2. Handle Incoming Messages (The Critical Part)
   useEffect(() => {
     if (!socket || !isConnected) return;
 
     const handler = async (data: Message) => {
+      // CASE A: It's my own message coming back (Confirmation)
       if (data.senderId === chatUser?.id && data.clientMessageId) {
+        // This will swap the temp ID for the real ID in DB and State
         await replaceOptimisticMessage(data.clientMessageId, data);
-        return;
-      } else {
+      }
+      // CASE B: It's a message from someone else
+      else {
         await saveMessageIDB(data);
-        //TODO: message append without sorting
-        useMessageStore.setState((state) => ({
-          messages: [...state.messages, data],
-        }));
+
+        // Use functional state update via the store to avoid closure staleness
+        useMessageStore.setState((state) => {
+          // Prevent duplicates just in case
+          if (state.messages.some((m) => m.id === data.id)) return state;
+          return { messages: [...state.messages, data] };
+        });
       }
     };
 
     socket.on("message:new", handler);
-
     return () => {
       socket.off("message:new", handler);
     };
@@ -83,52 +92,68 @@ export default function ChatView({
     saveMessageIDB,
   ]);
 
+  // 3. Initial Load & Sync
   useEffect(() => {
-    const getMessages = async (conversationId: string) => {
-      const localMessages =
-        await getMessagesByConversationIdIDB(conversationId);
+    const loadAndSync = async () => {
+      const convId = conversationData.conversationId;
+
+      // A. Load from IDB immediately for speed
+      const localMessages = await getMessagesByConversationIdIDB(convId);
       setMessages(localMessages);
+
       try {
+        // B. Fetch fresh data from server
+        // Logic check: usually pagination cursor is for *older* messages.
+        // If you are syncing *new* messages, this logic depends on your API.
+        // Assuming this is "Sync Missing Messages":
         const cursor =
           localMessages.length > 0
             ? localMessages[localMessages.length - 1].sequence
             : undefined;
-        const fetchedMessages = await getPaginatedMessages(
-          conversationId,
-          30,
-          cursor,
-        );
-        if (!fetchedMessages || !fetchedMessages.items.length) return;
-        await bulkSaveMessagesIDB(fetchedMessages.items);
-        const updatedMessages =
-          await getMessagesByConversationIdIDB(conversationId);
-        setMessages(updatedMessages);
+
+        const fetchedMessages = await getPaginatedMessages(convId, 30, cursor);
+
+        if (fetchedMessages?.items.length) {
+          // Save to DB
+          await bulkSaveMessagesIDB(fetchedMessages.items);
+
+          // IMPORTANT: Re-fetch from DB to ensure sorting and consistency
+          // This handles the case where fetched items merge with local items
+          const updatedMessages = await getMessagesByConversationIdIDB(convId);
+          setMessages(updatedMessages);
+        }
       } catch (err) {
-        toast.error("Message sync failed");
-        console.error(err);
+        console.error("Sync failed", err);
+        // Silent fail is often better than toast on load, but toast is okay
       }
     };
 
-    getMessages(conversationData.conversationId);
+    loadAndSync();
   }, [
-    bulkSaveMessagesIDB,
     conversationData.conversationId,
     getMessagesByConversationIdIDB,
+    bulkSaveMessagesIDB,
     setMessages,
   ]);
 
-  // TODO: HANDLE if !socket or error then pop message from indexdb and revert to input box
-  // TODO: Insert message payload in index db
   const sendMessage = (payload: InsertMessage) => {
     if (!socket || !isConnected)
       return toast.error("Unable to connect to the server.");
+
+    // 1. Emit to server
     socket.emit("message:send", payload);
+
+    // 2. Construct Optimistic Message
+    // IMPORTANT: Ensure this temp ID matches the format in replaceOptimisticMessage
+    const tempId = `temp-${payload.clientMessageId}`;
+
     const optimisticMessage: Message = {
       ...payload,
-      id: `temp-${payload.clientMessageId}`,
-      sequence: Date.now(), // High sequence so it stays at the bottom
+      id: tempId,
+      sequence: Date.now(),
       createdAt: new Date(),
-
+      conversationId: conversationData.conversationId, // Ensure this exists
+      senderId: user!.id, // Ensure this exists
       clientMessageId: payload.clientMessageId ?? null,
       type: payload.type ?? "text",
       replyToId: payload.replyToId ?? null,
@@ -136,16 +161,18 @@ export default function ChatView({
       isDeleted: false,
     };
 
+    // 3. Update Local State & DB
     saveMessageIDB(optimisticMessage);
     setMessages([...messages, optimisticMessage]);
   };
+
   return (
     <div className="flex h-svh w-full flex-col bg-background">
       <ChatHeader
         name={displayName}
         imageUrl={conversationData.otherUser.imageUrl ?? ""}
       />
-      <ChatMessages messages={messages} userData={chatUser} />
+      <ChatMessages messages={messages} userData={chatUser!} />
       <ChatInput
         conversationId={conversationData.conversationId}
         userId={user!.id}
