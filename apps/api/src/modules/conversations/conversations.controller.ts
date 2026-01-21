@@ -4,7 +4,7 @@ import {
   getConversationById,
   getConversationMessages,
   getConversationParticipantsByConversationId,
-  getConversationsByUserIdWithParticipants,
+  getConversationsByUserIdWithParticipants
 } from "@/modules/conversations/conversations.service.js";
 import { getAuth } from "@clerk/express";
 import { getUserPresence } from "@/modules/user/user.service.js";
@@ -18,6 +18,23 @@ export const getAllUserConversationsController = asyncHandler(
     const conversations = await getConversationsByUserIdWithParticipants(
       auth.userId!,
     );
+
+    const presencePromises = conversations.map(async (conversation) => {
+      try {
+        const status = await getUserPresence(conversation.otherUser.id);
+        if (status) {
+          conversation.otherUser = { ...conversation.otherUser, status } as any;
+        }
+      } catch (error) {
+        console.error(
+          `Failed to fetch presence for ${conversation.otherUser.id}:`,
+          error,
+        );
+      }
+    });
+
+    await Promise.all(presencePromises);
+
     return res.status(200).json({
       success: true,
       data: conversations,
