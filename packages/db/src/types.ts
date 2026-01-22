@@ -25,7 +25,7 @@ export type ConversationWithOtherUser = {
   otherUser: Pick<
     User,
     "id" | "firstName" | "lastName" | "username" | "imageUrl"
-  >;
+  > & { status: "online" | "offline" };
 };
 
 //USERS

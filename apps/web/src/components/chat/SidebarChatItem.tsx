@@ -14,24 +14,15 @@ import { MoreVertical } from "lucide-react";
 import { ConversationWithOtherUser } from "@repo/db/types";
 import dayjs from "dayjs";
 import { useNavigate } from "@tanstack/react-router";
-import { usePresenceStore } from "@/store/presence.store";
-import { useEffect, useState } from "react";
 
 const SidebarChatItem = ({
   conversation,
+  onlineStatus,
 }: {
   conversation: ConversationWithOtherUser;
+  onlineStatus: "online" | "offline";
 }) => {
   const navigate = useNavigate();
-
-  const { presence } = usePresenceStore()
-  const [onlineStatus, setOnlineStatus] = useState<"online" | "offline">(conversation.otherUser.status)
-
-  useEffect(() => {
-    if (presence[conversation.otherUser.id])
-      setOnlineStatus(presence[conversation.otherUser.id])
-  }, [presence, setOnlineStatus])
-
   return (
     <SidebarMenuItem
       className="group/chat-item"
@@ -53,7 +44,9 @@ const SidebarChatItem = ({
               </Avatar>
 
               {/* Online indicator */}
-              <span className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full ${onlineStatus === "online" && "bg-green-500 ring-2 ring-background"} `} />
+              <span
+                className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full ${onlineStatus === "online" && "bg-green-500 ring-2 ring-background"} `}
+              />
             </div>
 
             {/* Content */}

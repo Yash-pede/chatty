@@ -30,6 +30,7 @@ export const createConversationParticipants = async (
 export const getConversationsByUserIdWithParticipants = async (
   userId: string,
 ) => {
+  //TODO: GET conversation with other users by conversatino type === direct | group
   return conversationsDao.getConversationsByUserIdWithParticipants(userId);
 };
 

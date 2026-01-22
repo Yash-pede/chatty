@@ -22,6 +22,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllUserConversations } from "@/dbInteractions/queries/conversation.queries.ts";
 import DefaultPending from "@repo/ui/components/layout/DefaultPending";
 import { DefaultError } from "@repo/ui/components/layout/DefaultError";
+import { usePresenceStore } from "@/store/presence.store.ts";
 
 export function AppSidebar({
   userData,
@@ -31,12 +32,27 @@ export function AppSidebar({
   hidden?: boolean;
 }) {
   const { setOpenMobile, isMobile } = useSidebar();
+  const { presence, setPresence } = usePresenceStore();
 
-  const { error, isPending, data, refetch, isRefetching, isRefetchError } =
-    useQuery({
-      queryKey: ["conversations", userData.id],
-      queryFn: () => getAllUserConversations(),
-    });
+  const {
+    error,
+    isPending,
+    data,
+    isSuccess,
+    refetch,
+    isRefetching,
+    isRefetchError,
+  } = useQuery({
+    queryKey: ["conversations", userData.id],
+    queryFn: () => getAllUserConversations(),
+  });
+  useEffect(() => {
+    if (isSuccess && data) {
+      data.data.map((conversation) => {
+        setPresence(conversation.otherUser.id, conversation.otherUser.status);
+      });
+    }
+  }, [data, data?.data, data?.success, isSuccess, setPresence]);
 
   useEffect(() => {
     if (hidden) setOpenMobile(false);
@@ -82,6 +98,7 @@ export function AppSidebar({
                 <SidebarChatItem
                   key={conversation.conversationId}
                   conversation={conversation}
+                  onlineStatus={presence[conversation.otherUser.id]}
                 />
               ))}
             </SidebarMenu>
