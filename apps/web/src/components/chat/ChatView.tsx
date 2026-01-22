@@ -13,6 +13,9 @@ import { toast } from "sonner";
 import { useEffect } from "react";
 import { useMessageStore } from "@/store/messages.store";
 import { getPaginatedMessages } from "@/dbInteractions/queries/message.queries";
+import { usePresenceStore } from "@/store/presence.store";
+import { useQuery } from "@tanstack/react-query";
+import { getConversationPresence } from "@/dbInteractions/queries/conversation.queries";
 
 export default function ChatView({
   conversationData,
@@ -28,18 +31,19 @@ export default function ChatView({
     replaceOptimisticMessage,
     bulkSaveMessagesIDB,
   } = useMessageStore();
+  const { presence, setPresence, } = usePresenceStore()
 
   const { user } = useUser();
 
   // Memoize chatUser to prevent unnecessary effect triggers
   const chatUser: ChatUser | null = user
     ? {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        username: user.username,
-        imageUrl: user.imageUrl,
-      }
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      username: user.username,
+      imageUrl: user.imageUrl,
+    }
     : null;
 
   const displayName =
@@ -80,6 +84,7 @@ export default function ChatView({
       }
     };
 
+
     socket.on("message:new", handler);
     return () => {
       socket.off("message:new", handler);
@@ -91,6 +96,38 @@ export default function ChatView({
     replaceOptimisticMessage,
     saveMessageIDB,
   ]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const presenceHandler = (data: {
+      userId: string;
+      status: "online" | "offline";
+    }) => {
+      setPresence(data.userId, data.status);
+    };
+
+    socket.on("presence:update", presenceHandler);
+    return () => {
+      socket.off("presence:update", presenceHandler);
+    };
+  }, [socket, setPresence]);
+
+
+  const { data } = useQuery({
+    queryKey: ["conversation-presence", conversationData.conversationId],
+    queryFn: () => getConversationPresence(conversationData.conversationId),
+    staleTime: 30_000,
+  });
+
+  useEffect(() => {
+    if (!data) return;
+
+    data.forEach(({ userId, status }) => {
+      setPresence(userId, status);
+    });
+  }, [data, setPresence]);
+
 
   // 3. Initial Load & Sync
   useEffect(() => {
@@ -112,7 +149,6 @@ export default function ChatView({
             : undefined;
 
         const fetchedMessages = await getPaginatedMessages(convId, 30, cursor);
-
         if (fetchedMessages?.items.length) {
           // Save to DB
           await bulkSaveMessagesIDB(fetchedMessages.items);
@@ -166,11 +202,14 @@ export default function ChatView({
     setMessages([...messages, optimisticMessage]);
   };
 
+
+
   return (
     <div className="flex h-svh w-full flex-col bg-background">
       <ChatHeader
         name={displayName}
         imageUrl={conversationData.otherUser.imageUrl ?? ""}
+        onlineStatus={presence[conversationData.otherUser.id] ?? "offline"}
       />
       <ChatMessages messages={messages} userData={chatUser!} />
       <ChatInput

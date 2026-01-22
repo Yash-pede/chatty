@@ -11,7 +11,7 @@ import {
 } from "@repo/ui/components/item"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../tooltip.js";
 
-export const ChatHeader = ({ imageUrl, name }: { imageUrl: string; name: string }) => {
+export const ChatHeader = ({ imageUrl, name, onlineStatus }: { imageUrl: string; name: string, onlineStatus: "online" | "offline" }) => {
     return (
         <div className="flex items-center justify-between border-b px-4">
             <Item>
@@ -23,7 +23,7 @@ export const ChatHeader = ({ imageUrl, name }: { imageUrl: string; name: string 
                 </ItemMedia>
                 <ItemContent className="gap-0">
                     <ItemTitle>{name}</ItemTitle>
-                    <ItemDescription className="text-chart-4">Online</ItemDescription>
+                    <ItemDescription className="text-chart-4">{onlineStatus}</ItemDescription>
                 </ItemContent>
             </Item>
 
