@@ -149,7 +149,6 @@ export default function ChatView({
             : undefined;
 
         const fetchedMessages = await getPaginatedMessages(convId, 30, cursor);
-
         if (fetchedMessages?.items.length) {
           // Save to DB
           await bulkSaveMessagesIDB(fetchedMessages.items);
