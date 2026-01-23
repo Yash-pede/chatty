@@ -6,7 +6,7 @@ export class AppError extends Error {
     this.statusCode = statusCode;
   }
 }
-export class BadRequestError extends AppError {
+export class ApiError extends AppError {
   constructor(message: string, statusCode = 400) {
     super(message, statusCode);
   }

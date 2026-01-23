@@ -1,5 +1,11 @@
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import { conversationParticipants, conversations, conversationTypeEnum, messages, users } from "./schema.js";
+import {
+  conversationParticipants,
+  conversations,
+  conversationTypeEnum,
+  messages,
+  users,
+} from "./schema.js";
 
 //CONVERSATION
 export type Conversation = typeof conversations.$inferSelect;

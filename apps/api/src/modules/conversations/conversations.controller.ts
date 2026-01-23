@@ -66,12 +66,17 @@ export const getConversationMessagesController = asyncHandler(
       Math.max(Number.isFinite(rawLimit) ? rawLimit : DEFAULT_LIMIT, 1),
       MAX_LIMIT,
     );
+
+    const direction =
+      (req.query.direction as "forward" | "backward" | undefined) ?? "forward";
+
     const cursor = req.query.cursor ? Number(req.query.cursor) : undefined;
     const messageChunk = await getConversationMessages(
       conversationId,
       userId!,
       limit,
       cursor,
+      direction,
     );
 
     return res.json(messageChunk);

@@ -4,7 +4,7 @@ import { verifyToken } from "@clerk/backend";
 import type { Socket } from "socket.io";
 import { env } from "@/config/env.js";
 import { logger } from "@/core/logger.js";
-import { BadRequestError } from "@/core/errors/AppError.js";
+import { ApiError } from "@/core/errors/AppError.js";
 
 export function clerkAuthMiddleware(
   req: Request,
@@ -28,7 +28,7 @@ export async function clerkSocketAuth(
     const token = socket.handshake.auth?.token;
 
     if (!token) {
-      return next(new BadRequestError("Missing auth token", 401));
+      return next(new ApiError("Missing auth token", 401));
     }
 
     const payload = await verifyToken(token, {
@@ -42,6 +42,6 @@ export async function clerkSocketAuth(
     return next();
   } catch (err) {
     logger.error(err);
-    return next(new BadRequestError("UNAUTHORIZED", 401));
+    return next(new ApiError("UNAUTHORIZED", 401));
   }
 }
