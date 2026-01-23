@@ -4,6 +4,7 @@ import {
   ConversationWithOtherUser,
   InsertMessage,
   Message,
+  MessagesFetchResponse,
 } from "@repo/db/types";
 import { ChatHeader } from "@repo/ui/components/chat/ChatHeader";
 import { ChatInput } from "@repo/ui/components/chat/ChatInput";
@@ -14,8 +15,10 @@ import { useEffect } from "react";
 import { useMessageStore } from "@/store/messages.store";
 import { getPaginatedMessages } from "@/dbInteractions/queries/message.queries";
 import { usePresenceStore } from "@/store/presence.store";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { getConversationPresence } from "@/dbInteractions/queries/conversation.queries";
+import { useInView } from "react-intersection-observer";
+import DefaultPending from "@repo/ui/components/layout/DefaultPending";
 
 export default function ChatView({
   conversationData,
@@ -23,6 +26,7 @@ export default function ChatView({
   conversationData: ConversationWithOtherUser;
 }) {
   const { socket, isConnected } = useSocket();
+  const { ref, inView } = useInView();
   const {
     messages,
     setMessages,
@@ -32,7 +36,6 @@ export default function ChatView({
     bulkSaveMessagesIDB,
   } = useMessageStore();
   const { presence, setPresence, } = usePresenceStore()
-
   const { user } = useUser();
 
   // Memoize chatUser to prevent unnecessary effect triggers
@@ -51,7 +54,7 @@ export default function ChatView({
     conversationData.otherUser.username ??
     "Unknown";
 
-  // 1. Join/Leave Room
+  // Join/Leave Room
   useEffect(() => {
     if (!socket || !isConnected || !conversationData.conversationId) return;
 
@@ -61,7 +64,7 @@ export default function ChatView({
     };
   }, [conversationData.conversationId, socket, isConnected]);
 
-  // 2. Handle Incoming Messages (The Critical Part)
+  // Handle Incoming Messages (The Critical Part)
   useEffect(() => {
     if (!socket || !isConnected) return;
 
@@ -96,7 +99,7 @@ export default function ChatView({
     replaceOptimisticMessage,
     saveMessageIDB,
   ]);
-
+  // Presence Handling
   useEffect(() => {
     if (!socket) return;
 
@@ -114,12 +117,16 @@ export default function ChatView({
   }, [socket, setPresence]);
 
 
+
+  // Initial Presence Load
   const { data } = useQuery({
     queryKey: ["conversation-presence", conversationData.conversationId],
     queryFn: () => getConversationPresence(conversationData.conversationId),
     staleTime: 30_000,
   });
 
+
+  // Sync presence data to store
   useEffect(() => {
     if (!data) return;
 
@@ -129,7 +136,42 @@ export default function ChatView({
   }, [data, setPresence]);
 
 
-  // 3. Initial Load & Sync
+
+  // Pagination with Infinite Query
+  const { data: Page, fetchNextPage, isFetchingNextPage } = useInfiniteQuery<MessagesFetchResponse>({
+    queryKey: ['messages', conversationData.conversationId],
+    queryFn: ({ pageParam }) => getPaginatedMessages(conversationData.conversationId, 30, pageParam as number | undefined)
+    ,
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage) => {
+      return lastPage.pageInfo.hasMore ? lastPage.pageInfo.nextCursor : undefined;
+    }
+  })
+
+  // Sync paginated data to IDB and State
+  useEffect(() => {
+    if (!data) return;
+
+    const syncToIDB = async () => {
+      const allItems = Page?.pages.flatMap(p => p.items) ?? [];
+      await bulkSaveMessagesIDB(allItems);
+
+      const merged = await getMessagesByConversationIdIDB(conversationData.conversationId);
+      setMessages(merged);
+    };
+
+    syncToIDB();
+  }, [Page, conversationData.conversationId]);
+
+  // Fetch next page when top is in view
+  useEffect(() => {
+    if (inView) {
+      fetchNextPage()
+    }
+  }, [inView])
+
+
+  // Initial Load & Sync
   useEffect(() => {
     const loadAndSync = async () => {
       const convId = conversationData.conversationId;
@@ -171,7 +213,7 @@ export default function ChatView({
     bulkSaveMessagesIDB,
     setMessages,
   ]);
-
+  // Send Message Function
   const sendMessage = (payload: InsertMessage) => {
     if (!socket || !isConnected)
       return toast.error("Unable to connect to the server.");
@@ -205,13 +247,17 @@ export default function ChatView({
 
 
   return (
-    <div className="flex h-svh w-full flex-col bg-background">
+    <div className="relative flex h-svh w-full flex-col bg-background">
       <ChatHeader
         name={displayName}
         imageUrl={conversationData.otherUser.imageUrl ?? ""}
         onlineStatus={presence[conversationData.otherUser.id] ?? "offline"}
       />
-      <ChatMessages messages={messages} userData={chatUser!} />
+      {
+        isFetchingNextPage &&
+        <div className="w-[calc(100%-2rem)] flex justify-center absolute"><DefaultPending className="h-fit mt-23" /></div>
+      }
+      <ChatMessages ChatTopElement={ref} messages={messages} userData={chatUser!} />
       <ChatInput
         conversationId={conversationData.conversationId}
         userId={user!.id}

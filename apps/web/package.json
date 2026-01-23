@@ -24,6 +24,7 @@
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
     "react-hook-form": "^7.70.0",
+    "react-intersection-observer": "^10.0.2",
     "socket.io-client": "^4.8.3",
     "sonner": "^2.0.7",
     "zod": "^4.1.13",
