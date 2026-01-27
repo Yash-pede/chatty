@@ -1,11 +1,12 @@
 import { Server } from "socket.io";
 import { logger } from "@/core/logger.js";
+import { Message } from "@repo/db/types";
 
 export const handleNewMessageSubscription = (
   io: Server,
   { channel, raw }: { channel: string; raw: string },
 ) => {
-  let message: unknown;
+  let message: Message;
   try {
     message = JSON.parse(raw);
   } catch (err) {

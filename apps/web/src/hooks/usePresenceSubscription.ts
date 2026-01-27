@@ -20,7 +20,7 @@ export const usePresenceSubscription = (conversationId: string) => {
     };
     socket.on("presence:update", presenceHandler);
     return () => {
-      socket.off("presence:update", presenceHandler);
+      socket.off("presence:update");
     };
   }, [socket, isConnected, setPresence]);
 

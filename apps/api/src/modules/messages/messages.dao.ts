@@ -1,7 +1,7 @@
 import { InsertMessage, Message } from "@repo/db/types";
 import db from "@/config/db.drizzle.js";
 import { messages } from "@repo/db/schema";
-import { and, desc, eq, gt, lt } from "drizzle-orm";
+import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
 
 export const messagesDao = {
   insertMessage: async (data: InsertMessage): Promise<Message> => {
@@ -15,12 +15,17 @@ export const messagesDao = {
     binaryOperation: "gt" | "lt",
     cursor?: number,
   ) => {
+    const isForward = binaryOperation === "gt";
+    const orderBy = isForward
+      ? asc(messages.sequence)
+      : desc(messages.sequence);
+
     const whereClause = cursor
       ? and(
           eq(messages.conversationId, conversationId),
-          binaryOperation === "lt"
-            ? lt(messages.sequence, cursor)
-            : gt(messages.sequence, cursor),
+          isForward
+            ? gt(messages.sequence, cursor)
+            : lt(messages.sequence, cursor),
         )
       : eq(messages.conversationId, conversationId);
 
@@ -28,7 +33,7 @@ export const messagesDao = {
       .select()
       .from(messages)
       .where(whereClause)
-      .orderBy(desc(messages.sequence))
+      .orderBy(orderBy)
       .limit(limit);
   },
 };
