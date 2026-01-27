@@ -8,7 +8,13 @@ export const insertMessage = (data: InsertMessage) => {
 export const getMessages = (
   conversationId: string,
   limit: number,
+  direction: "forward" | "backward" = "forward",
   cursor?: number,
 ) => {
-  return messagesDao.getMessages(conversationId, limit, cursor);
+  return messagesDao.getMessages(
+    conversationId,
+    limit,
+    direction === "forward" ? "gt" : "lt",
+    cursor,
+  );
 };

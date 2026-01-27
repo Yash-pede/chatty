@@ -3,7 +3,7 @@ import {
   InsertConversation,
   InsertConversationParticipants,
 } from "@repo/db/types";
-import { BadRequestError } from "@/core/errors/AppError.js";
+import { ApiError } from "@/core/errors/AppError.js";
 import { getMessages } from "@/modules/messages/messages.service.js";
 
 export const createConversationWithParticipants = async (
@@ -58,19 +58,30 @@ export const getConversationMessages = async (
   userId: string,
   limit: number,
   cursor?: number,
+  direction: "forward" | "backward" = "forward",
 ) => {
   const participant = await conversationsDao.getConversatioParticipant(
     conversationId,
     userId,
   );
   if (participant.length === 0) {
-    throw new BadRequestError("User is not part of the conversation", 403);
+    throw new ApiError("User is not part of the conversation", 403);
   }
 
-  const messages = await getMessages(conversationId, limit, cursor);
+  const messages = await getMessages(
+    conversationId,
+    limit + 1,
+    direction,
+    cursor,
+  );
   const hasMore = messages.length > limit;
   const items = hasMore ? messages.slice(0, limit) : messages;
-  const nextCursor = items.length > 0 ? items[items.length - 1].sequence : null;
+  const nextCursor =
+    items.length > 0
+      ? direction === "forward"
+        ? items[items.length - 1].sequence
+        : items[0].sequence
+      : null;
   return {
     items,
     pageInfo: {

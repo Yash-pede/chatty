@@ -1,5 +1,5 @@
 import { userDao } from "@/modules/user/user.dao.js";
-import { BadRequestError } from "@/core/errors/AppError.js";
+import { ApiError } from "@/core/errors/AppError.js";
 import { ClerkUserUpdate, InsertUser } from "@repo/db/types";
 import { rolesAndPermissionsDao } from "@/modules/roles_permissions/roles_permissions.dao.js";
 import { clerkClient } from "@clerk/express";
@@ -13,7 +13,7 @@ export const createUser = async (data: InsertUser & { role: string }) => {
     roles.find((r) => r.name === "user");
 
   if (!targetRole)
-    throw new BadRequestError("Invalid role configuration in database");
+    throw new ApiError("Invalid role configuration in database");
 
   await userDao.createUser(data);
   await userDao.setUserRole(targetRole.id, data.id);
@@ -39,9 +39,9 @@ export const updateUser = async (
   data: Partial<InsertUser> & { id: string },
 ) => {
   const userData = await getUserById(data.id);
-  if (!userData || !userData.id) throw new BadRequestError("Invalid id");
+  if (!userData || !userData.id) throw new ApiError("Invalid id");
   if (await userDao.getIsUserDeleted(userData.id))
-    throw new BadRequestError("User Deleted");
+    throw new ApiError("User Deleted");
   return userDao.updateUser(userData.id, data);
 };
 
