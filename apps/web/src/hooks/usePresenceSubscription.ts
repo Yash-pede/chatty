@@ -8,7 +8,6 @@ export const usePresenceSubscription = (conversationId: string) => {
   const { setPresence, presence } = usePresenceStore();
   const { socket, isConnected } = useSocket();
 
-  // 1. Socket Listener
   useEffect(() => {
     if (!socket || !isConnected) return;
 
@@ -25,14 +24,12 @@ export const usePresenceSubscription = (conversationId: string) => {
     };
   }, [socket, isConnected, setPresence]);
 
-  // 2. Initial Fetch
   const { data } = useQuery({
     queryKey: ["conversation-presence", conversationId],
     queryFn: () => getConversationPresence(conversationId),
     staleTime: 30_000,
   });
 
-  // 3. Sync Fetch to Store
   useEffect(() => {
     if (!data) return;
     data.forEach(({ userId, status }) => setPresence(userId, status));

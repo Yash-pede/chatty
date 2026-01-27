@@ -76,10 +76,17 @@ export const getConversationMessages = async (
   );
   const hasMore = messages.length > limit;
   const items = hasMore ? messages.slice(0, limit) : messages;
+  const nextCursor =
+    items.length > 0
+      ? direction === "forward"
+        ? items[items.length - 1].sequence
+        : items[0].sequence
+      : null;
   return {
     items,
     pageInfo: {
       hasMore,
+      nextCursor,
     },
   };
 };
