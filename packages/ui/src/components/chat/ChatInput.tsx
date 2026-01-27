@@ -5,20 +5,13 @@ import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { Button } from "../button.js";
 import { Input } from "../input.js";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover.js";
-import { InsertMessage } from "@repo/db/types";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../tooltip.js";
 
 type ChatInputProps = {
-  userId: string;
-  conversationId: string;
-  sendMessage: (payload: InsertMessage) => any;
+  sendMessage: (text: string) => any;
 };
 
-export const ChatInput = ({
-  userId,
-  conversationId,
-  sendMessage,
-}: ChatInputProps) => {
+export const ChatInput = ({ sendMessage }: ChatInputProps) => {
   const [emojiOpen, setEmojiOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -29,15 +22,7 @@ export const ChatInput = ({
     const text = inputEl.value.trim();
     if (!text) return;
 
-    const payload: InsertMessage = {
-      senderId: userId,
-      conversationId,
-      clientMessageId: crypto.randomUUID(),
-      type: "text",
-      content: { text },
-    };
-
-    await sendMessage(payload);
+    await sendMessage(text);
     inputEl.value = "";
   };
 

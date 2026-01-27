@@ -62,7 +62,7 @@ export type MessageContentType = {
 export type MessagesFetchResponse = {
   items: Message[];
   pageInfo: {
-    hasMore: Boolean;
+    hasMore: boolean;
     nextCursor: Message["sequence"];
   };
 };
