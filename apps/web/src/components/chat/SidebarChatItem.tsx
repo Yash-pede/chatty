@@ -40,12 +40,13 @@ const SidebarChatItem = ({
             <div className="relative">
               <Avatar className="h-10 w-10">
                 <AvatarImage src={conversation.otherUser.imageUrl ?? ""} />
-                <AvatarFallback>JS</AvatarFallback>
+                <AvatarFallback>{conversation.otherUser.firstName?.slice(0, 2).toUpperCase() || ""}</AvatarFallback>
               </Avatar>
 
               {/* Online indicator */}
               <span
-                className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full ${onlineStatus === "online" && "bg-green-500 ring-2 ring-background"} `}
+                className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full ${onlineStatus === "online" && "bg-green-500 ring-2 ring-background"} 
+                `}
               />
             </div>
 

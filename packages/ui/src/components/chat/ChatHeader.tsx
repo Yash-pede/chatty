@@ -23,7 +23,7 @@ export const ChatHeader = ({ imageUrl, name, onlineStatus }: { imageUrl: string;
                 </ItemMedia>
                 <ItemContent className="gap-0">
                     <ItemTitle>{name}</ItemTitle>
-                    <ItemDescription className="text-chart-4">{onlineStatus}</ItemDescription>
+                    <ItemDescription className={`${onlineStatus === "online" ? "text-chart-3" : "text-muted-foreground"}`}>{onlineStatus}</ItemDescription>
                 </ItemContent>
             </Item>
 
