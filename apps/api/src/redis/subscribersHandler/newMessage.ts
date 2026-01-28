@@ -6,19 +6,37 @@ export const handleNewMessageSubscription = (
   io: Server,
   { channel, raw }: { channel: string; raw: string },
 ) => {
-  let message: Message;
+  let payload: { message: Message; senderSocketId?: string };
+
   try {
-    message = JSON.parse(raw);
+    payload = JSON.parse(raw);
   } catch (err) {
-    logger.error({ err, channel }, "Invalid message payload");
+    logger.error(
+      { err, raw, channel },
+      "Redis subscription received invalid JSON",
+    );
+    return;
+  }
+
+  const { message, senderSocketId } = payload;
+
+  if (!message || !message.conversationId) {
+    logger.warn({ payload }, "Redis payload missing message data");
     return;
   }
 
   const conversationId = channel.split(":")[1];
+
   if (!conversationId) {
     logger.warn({ channel }, "Missing conversationId in channel");
     return;
   }
-  // logger.info("message:new" + JSON.stringify(message));
-  io.to(`conversation:${conversationId}`).emit("message:new", message);
+
+  const broadcast = io.to(`conversation:${conversationId}`);
+
+  if (senderSocketId) {
+    broadcast.except(senderSocketId);
+  }
+
+  broadcast.emit("message:new", message);
 };

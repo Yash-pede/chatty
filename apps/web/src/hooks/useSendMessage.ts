@@ -42,11 +42,12 @@ export const useSendMessage = (conversationId: string) => {
       // 4. Update UI Immediately
       await addMessage(optimisticMessage);
 
-      // 5. Send to Server
       socket.emit("message:send", payload, (response: any) => {
-        if (response?.error) {
-          console.error("Failed to send", response.error);
-          // Optional: Mark message as failed in store
+        if (response?.status === "error") {
+          // TODO: HANDLE ERROR message state
+          console.error("Failed to send", response);
+        } else if (response?.status === "ok") {
+          addMessage(response.data);
         }
       });
     },
