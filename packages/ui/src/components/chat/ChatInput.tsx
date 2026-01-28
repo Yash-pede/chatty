@@ -59,7 +59,7 @@ export const ChatInput = ({ sendMessage }: ChatInputProps) => {
             skinTonesDisabled
             onEmojiClick={(emoji: EmojiClickData) => {
               handleEmojiClick(emoji);
-              // setEmojiOpen(false); // optional UX
+              setEmojiOpen(true);
             }}
           />
         </PopoverContent>
