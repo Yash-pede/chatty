@@ -3,9 +3,9 @@ import { useRef, useState } from "react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 
 import { Button } from "../button.js";
-import { Input } from "../input.js";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../tooltip.js";
+import { Textarea } from "../textarea.js";
 
 type ChatInputProps = {
   sendMessage: (text: string) => any;
@@ -13,7 +13,15 @@ type ChatInputProps = {
 
 export const ChatInput = ({ sendMessage }: ChatInputProps) => {
   const [emojiOpen, setEmojiOpen] = useState(false);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const adjustHeight = () => {
+    const inputEl = inputRef.current;
+    if (inputEl) {
+      inputEl.style.height = "auto"; 
+      inputEl.style.height = `${inputEl.scrollHeight}px`; 
+    }
+  };
 
   const handleSend = async () => {
     const inputEl = inputRef.current;
@@ -42,7 +50,7 @@ export const ChatInput = ({ sendMessage }: ChatInputProps) => {
   };
 
   return (
-    <div className="flex items-center gap-2 border-t px-4 py-3">
+    <div className="flex items-center gap-2 border-t px-4 py-3 w-full">
       {/* Emoji Picker */}
       <Popover open={emojiOpen} onOpenChange={setEmojiOpen}>
         <PopoverTrigger asChild>
@@ -78,10 +86,12 @@ export const ChatInput = ({ sendMessage }: ChatInputProps) => {
       </Tooltip>
 
       {/* Input */}
-      <Input
+      <Textarea
         ref={inputRef}
         placeholder="Enter message..."
-        className="flex-1"
+        rows={1}
+        className="flex-1 max-h-40 min-h-10 resize-none overflow-y-auto bg-transparent px-3 py-2 focus-visible:outline-none break-all"
+        onChange={adjustHeight}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
