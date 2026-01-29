@@ -32,6 +32,7 @@ export const ChatInput = ({ sendMessage }: ChatInputProps) => {
 
     await sendMessage(text);
     inputEl.value = "";
+    adjustHeight()
   };
 
   const handleEmojiClick = (emoji: EmojiClickData) => {
@@ -50,7 +51,7 @@ export const ChatInput = ({ sendMessage }: ChatInputProps) => {
   };
 
   return (
-    <div className="flex items-center gap-2 border-t px-4 py-3 w-full">
+    <div className="flex items-end gap-2 border-t px-4 py-3 w-full">
       {/* Emoji Picker */}
       <Popover open={emojiOpen} onOpenChange={setEmojiOpen}>
         <PopoverTrigger asChild>
