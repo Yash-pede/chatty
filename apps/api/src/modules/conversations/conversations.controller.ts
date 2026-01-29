@@ -2,12 +2,14 @@ import { asyncHandler } from "@/core/asyncHandler.js";
 import { Request, Response } from "express";
 import {
   getConversationById,
+  getConversationMemberIds,
   getConversationMessages,
   getConversationParticipantsByConversationId,
   getConversationsByUserIdWithParticipants,
 } from "@/modules/conversations/conversations.service.js";
 import { getAuth } from "@clerk/express";
 import { getUserPresence } from "@/modules/user/user.service.js";
+import { getMessage } from "@/modules/messages/messages.service.js";
 
 const DEFAULT_LIMIT = 30;
 const MAX_LIMIT = 100;
@@ -102,5 +104,19 @@ export const getConversationPresenceController = asyncHandler(
       await Promise.all(presencePromises);
 
     res.status(200).json(state);
+  },
+);
+
+export const getConversationMessageController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { conversationId, messageId } = req.params;
+    const { userId } = getAuth(req);
+
+    const members = await getConversationMemberIds(conversationId);
+    if (!userId || !members.includes(userId)) {
+      res.status(404).json({ success: false });
+    }
+    const message = await getMessage(messageId);
+    return res.json(message);
   },
 );

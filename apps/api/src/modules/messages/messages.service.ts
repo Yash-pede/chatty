@@ -18,3 +18,8 @@ export const getMessages = (
     cursor,
   );
 };
+
+export const getMessage = async (messageId: string) => {
+  const [message] = await messagesDao.getMessage(messageId);
+  return message;
+};

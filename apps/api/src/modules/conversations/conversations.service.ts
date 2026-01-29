@@ -5,6 +5,7 @@ import {
 } from "@repo/db/types";
 import { ApiError } from "@/core/errors/AppError.js";
 import { getMessages } from "@/modules/messages/messages.service.js";
+import { RedisManager } from "@/redis/RedisManager.js";
 
 export const createConversationWithParticipants = async (
   data: InsertConversation,
@@ -89,4 +90,43 @@ export const getConversationMessages = async (
       nextCursor,
     },
   };
+};
+
+export const getConversationMemberIds = async (
+  conversationId: string,
+): Promise<string[]> => {
+  const redis = RedisManager.get().pub;
+  const cacheKey = `conversation:${conversationId}:members`;
+
+  // 1. Try to get from Cache
+  const cachedMembers = await redis.smembers(cacheKey);
+
+  if (cachedMembers && cachedMembers.length > 0) {
+    return cachedMembers;
+  }
+
+  // 2. Cache Miss: Fetch from DB
+  const rows =
+    await conversationsDao.getConversationParticipantsByConversationId(
+      conversationId,
+    );
+
+  // Flatten to string array
+  const userIds = rows.map((r) => r.userId);
+
+  // 3. Store in Redis (if we found members)
+  if (userIds.length > 0) {
+    const pipeline = redis.pipeline();
+
+    // SADD accepts an array in ioredis
+    pipeline.sadd(cacheKey, userIds);
+
+    // Set Expiry: 1 hour (3600s).
+    // 60 hours (3600*60) is usually too long for permissions cache.
+    pipeline.expire(cacheKey, 3600);
+
+    await pipeline.exec();
+  }
+
+  return userIds;
 };

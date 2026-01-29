@@ -36,4 +36,7 @@ export const messagesDao = {
       .orderBy(orderBy)
       .limit(limit);
   },
+  getMessage: (messageId: string) => {
+    return db.select().from(messages).where(eq(messages.id, messageId));
+  },
 };
