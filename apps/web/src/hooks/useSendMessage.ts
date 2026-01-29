@@ -2,56 +2,55 @@ import { useSocket } from "@/lib/sockets/SocketProvider";
 import { useMessageStore } from "@/store/messages.store";
 import { InsertMessage, Message } from "@repo/db/types";
 import { useCallback } from "react";
-import { useUser } from "@clerk/clerk-react"; // Assuming you need user info
+import { useUser } from "@clerk/clerk-react";
+import { toast } from "sonner";
 
 export const useSendMessage = (conversationId: string) => {
   const { socket } = useSocket();
-  const { addMessage } = useMessageStore();
+  const { addMessage, markMessageFailed } = useMessageStore();
   const { user } = useUser();
 
   const sendMessage = useCallback(
     async (text: string) => {
       if (!socket || !user) return;
 
-      // 1. Generate ONE ID to rule them all
-      const tempId = crypto.randomUUID();
+      const tempId = `temp-${crypto.randomUUID()}`;
 
-      // 2. Prepare Payload for Server
       const payload: InsertMessage = {
         senderId: user.id,
         conversationId,
-        clientMessageId: tempId, // <--- THE CORRELATION ID
+        clientMessageId: `${tempId}`,
         type: "text",
         content: { text },
       };
 
-      // 3. Create Optimistic Message for UI
-      // CRITICAL: Set 'id' to 'tempId' so we can find and delete it later
       const optimisticMessage: Message = {
         ...payload,
-        id: tempId, // <--- Temporary ID
+        id: `${tempId}`,
         createdAt: new Date(),
         updatedAt: new Date(),
-        sequence: Date.now(), // Put it at the bottom
+        sequence: Date.now(),
         isDeleted: false,
         isEdited: false,
-        // You can add a flag to style it differently (e.g. grey text)
-        // isOptimistic: true,
       } as Message;
 
-      // 4. Update UI Immediately
       await addMessage(optimisticMessage);
+      socket
+        .timeout(5000)
+        .emit("message:send", payload, (err: any, response: any) => {
+          if (err || response?.status === "error") {
+            markMessageFailed(tempId);
 
-      socket.emit("message:send", payload, (response: any) => {
-        if (response?.status === "error") {
-          // TODO: HANDLE ERROR message state
-          console.error("Failed to send", response);
-        } else if (response?.status === "ok") {
-          addMessage(response.data);
-        }
-      });
+            toast.error("Message failed to send");
+            return;
+          }
+
+          if (response?.status === "ok" && response.data) {
+            addMessage(response.data);
+          }
+        });
     },
-    [socket, conversationId, user, addMessage],
+    [socket, conversationId, user, addMessage, markMessageFailed],
   );
 
   return sendMessage;

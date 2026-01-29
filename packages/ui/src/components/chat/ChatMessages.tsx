@@ -21,10 +21,11 @@ interface ChatMessagesProps {
   isLoading: boolean;
   hasMore: boolean;
   onLoadMore: () => Promise<void>;
+  failedIds: Set<string>;
 }
 
 export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(
-  ({ messages, userData, isLoading, hasMore, onLoadMore }, ref) => {
+  ({ messages, userData, isLoading, hasMore, onLoadMore, failedIds }, ref) => {
     const parentRef = useRef<HTMLDivElement>(null);
     const [isFetchingOlder, setIsFetchingOlder] = useState(false);
 
@@ -149,6 +150,8 @@ export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(
                   <ChatMessageItem
                     isMe={message.senderId === userData?.id}
                     message={message}
+                    isFailed={failedIds.has(message.id)}
+                    onRetry={() => {}}
                   />
                 </div>
               );

@@ -9,10 +9,15 @@ import { CheckCheck, FileText, Play } from "lucide-react";
 export const ChatMessageItem = ({
   message,
   isMe,
+  isFailed,
+  onRetry,
 }: {
   message: Message;
   isMe: boolean;
+  isFailed: boolean;
+  onRetry: () => void;
 }) => {
+  // console.log("MESSAGE", message,isFailed);
   return (
     <Item
       key={message.id}
@@ -20,6 +25,7 @@ export const ChatMessageItem = ({
         "flex w-fit max-w-[75%] flex-col items-end gap-1 rounded-lg px-4 py-3 text-sm my-1",
         "wrap-break-word whitespace-pre-wrap",
         isMe ? "ml-auto bg-primary text-primary-foreground" : "bg-muted",
+        isFailed && "bg-destructive",
       )}
     >
       {/* TEXT MESSAGE */}
@@ -48,7 +54,7 @@ export const ChatMessageItem = ({
           <Button
             size="sm"
             variant="outline"
-            className="ml-auto shrink-0 bg-ba text-foreground"
+            className="ml-auto shrink-0 text-foreground"
           >
             Download
           </Button>

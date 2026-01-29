@@ -16,7 +16,6 @@ export const usePresenceSubscription = (conversationId: string) => {
       status: "online" | "offline";
     }) => {
       setPresence(data.userId, data.status);
-      console.log("presenceDATA", data);
     };
     socket.on("presence:update", presenceHandler);
     return () => {

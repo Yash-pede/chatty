@@ -44,6 +44,7 @@ export default function ChatView({
     hasMoreOlderMessages,
     initConversation,
     loadOlderMessages,
+    failedIds,
   } = useMessageStore();
 
   // 2. Initial Sync on Mount (or when ID changes)
@@ -81,11 +82,10 @@ export default function ChatView({
       <ChatMessages
         messages={messages}
         userData={chatUser!}
-        // Pass State
         isLoading={isLoading}
         hasMore={hasMoreOlderMessages}
-        // Pass Action
         onLoadMore={handleLoadMore}
+        failedIds={failedIds}
       />
 
       <ChatInput sendMessage={handleSendMessage} />

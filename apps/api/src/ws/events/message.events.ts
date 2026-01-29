@@ -29,7 +29,6 @@ export function registerMessageEvents(io: Server, socket: Socket) {
       // }
 
       //TODO: UnredCount
-
       await redis.pub.publish(
         `conversation:${conversationId}`,
         JSON.stringify({ message: insertedMessage, senderSocketId: socket.id }),
