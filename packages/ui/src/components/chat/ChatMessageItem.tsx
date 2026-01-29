@@ -23,7 +23,7 @@ export const ChatMessageItem = ({
       key={message.id}
       className={cn(
         "flex w-fit max-w-[75%] flex-col items-end gap-1 rounded-lg px-4 py-3 text-sm my-1",
-        "wrap-break-word whitespace-pre-wrap",
+        "wrap-break-word whitespace-pre-wrap break-all",
         isMe ? "ml-auto bg-primary text-primary-foreground" : "bg-muted",
         isFailed && "bg-destructive",
       )}
@@ -32,8 +32,8 @@ export const ChatMessageItem = ({
       {message.type === "text" && (
         <Item
           className={cn(
-            "p-0 leading-relaxed",
-            isMe ? "text-right" : "text-left w-full",
+            "p-0 leading-relaxed text-left",
+            !isMe && "w-full",
           )}
         >
           {(message.content as MessageContentType)?.text}

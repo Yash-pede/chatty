@@ -1,4 +1,4 @@
-import { MoreVertical, Phone, Video } from "lucide-react";
+import { ArrowLeft, MoreVertical, Phone, Video } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../avatar.js";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../dropdown-menu.js";
 import { Button } from "../button.js";
@@ -10,11 +10,19 @@ import {
     ItemTitle,
 } from "@repo/ui/components/item"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../tooltip.js";
+import { useState } from "react";
+import { UserProfileSheet } from "./UserProfile.js";
+import { useRouter } from "@tanstack/react-router";
 
 export const ChatHeader = ({ imageUrl, name, onlineStatus }: { imageUrl: string; name: string, onlineStatus: "online" | "offline" }) => {
+    const [isProfileOpen, setIsProfileOpen] = useState(false)
+    const router = useRouter();
     return (
         <div className="flex items-center justify-between border-b px-4">
-            <Item>
+            <Item className="px-0">
+                <Button variant={"ghost"} className="md:hidden" onClick={() => router.history.back()}>
+                    <ArrowLeft />
+                </Button>
                 <ItemMedia>
                     <Avatar className="scale-125">
                         <AvatarImage src={imageUrl} />
@@ -22,13 +30,13 @@ export const ChatHeader = ({ imageUrl, name, onlineStatus }: { imageUrl: string;
                     </Avatar>
                 </ItemMedia>
                 <ItemContent className="gap-0">
-                    <ItemTitle>{name}</ItemTitle>
-                    <ItemDescription className="text-chart-4">{onlineStatus}</ItemDescription>
+                    <ItemTitle>{name.slice(0, name.indexOf(" ") > 0 ? name.indexOf(" ") : name.length)}</ItemTitle>
+                    <ItemDescription className={`${onlineStatus === "online" ? "text-chart-3" : "text-muted-foreground"}`}>{onlineStatus}</ItemDescription>
                 </ItemContent>
             </Item>
 
             <div className="flex items-center gap-2">
-                {[Phone, Video].map((Icon, index) => (
+                {/* {[Phone, Video].map((Icon, index) => (
                     <Tooltip key={index}>
                         <TooltipTrigger asChild>
                             <Button size="icon" variant="ghost">
@@ -39,7 +47,7 @@ export const ChatHeader = ({ imageUrl, name, onlineStatus }: { imageUrl: string;
                             {Icon === Phone ? "Call" : "Video Call"}
                         </TooltipContent>
                     </Tooltip>
-                ))}
+                ))} */}
 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -48,14 +56,15 @@ export const ChatHeader = ({ imageUrl, name, onlineStatus }: { imageUrl: string;
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem>View profile</DropdownMenuItem>
-                        <DropdownMenuItem>Clear chat</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuItem onClick={() => setIsProfileOpen(true)}>View profile</DropdownMenuItem>
+                        {/* <DropdownMenuItem>Clear chat</DropdownMenuItem> */}
+                        <DropdownMenuItem disabled className="text-destructive">
                             Block user
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
+            <UserProfileSheet open={isProfileOpen} onOpenChange={setIsProfileOpen} />
         </div>
     );
 }
