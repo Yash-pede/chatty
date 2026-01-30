@@ -2,23 +2,19 @@ import { Paperclip, Reply, Send, Smile, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { Message, MessageContentType } from "@repo/db/types";
+import { cn } from "@repo/ui/lib/utils";
 
 import { Button } from "../button.js";
-import { Input } from "../input.js";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../tooltip.js";
 
-// Helper to get text for preview
 const getPreviewText = (msg: Message) => {
   if (msg.type === "text") return (msg.content as MessageContentType).text;
   return `[${msg.type}]`;
 };
 
 type ChatInputProps = {
-  // New signature: Object with text + optional replyToId
   sendMessage: (opts: { text: string; replyToId?: string }) => Promise<void>;
-
-  // New props for Reply state
   replyingTo: Message | null;
   onCancelReply: () => void;
 };
@@ -29,9 +25,21 @@ export const ChatInput = ({
   onCancelReply,
 }: ChatInputProps) => {
   const [emojiOpen, setEmojiOpen] = useState(false);
-  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // 1. Auto-focus when replying
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const adjustHeight = () => {
+    const textarea = inputRef.current;
+    if (!textarea) return;
+
+    textarea.style.height = "auto";
+
+    const newHeight = Math.min(textarea.scrollHeight, 150);
+    textarea.style.height = `${newHeight}px`;
+
+    textarea.style.overflowY = newHeight >= 150 ? "auto" : "hidden";
+  };
+
   useEffect(() => {
     if (replyingTo && inputRef.current) {
       inputRef.current.focus();
@@ -45,15 +53,13 @@ export const ChatInput = ({
     const text = inputEl.value.trim();
     if (!text) return;
 
-    // 2. Call sendMessage with the object payload
     await sendMessage({
       text,
-      replyToId: replyingTo?.id, // Pass the ID if it exists
+      replyToId: replyingTo?.id,
     });
 
     inputEl.value = "";
-
-    // 3. Close the reply bar
+    inputEl.style.height = "auto";
     if (replyingTo) onCancelReply();
   };
 
@@ -69,6 +75,8 @@ export const ChatInput = ({
 
     const cursor = start + emoji.emoji.length;
     inputEl.setSelectionRange(cursor, cursor);
+
+    adjustHeight();
     inputEl.focus();
   };
 
@@ -100,14 +108,14 @@ export const ChatInput = ({
       )}
 
       {/* --- INPUT AREA --- */}
-      <div className="flex items-center gap-2 px-4 py-3">
-        {/* Emoji Picker */}
+      {/* Changed items-center -> items-end to keep buttons at bottom when textarea grows */}
+      <div className="flex items-end gap-2 px-4 py-3">
         <Popover open={emojiOpen} onOpenChange={setEmojiOpen}>
           <PopoverTrigger asChild>
             <Button
               size="icon"
               variant="ghost"
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground mb-1"
             >
               <Smile className="h-5 w-5" />
             </Button>
@@ -122,19 +130,17 @@ export const ChatInput = ({
             <EmojiPicker
               height={350}
               width={320}
-              // theme="auto" // If you support dark mode
               onEmojiClick={handleEmojiClick}
             />
           </PopoverContent>
         </Popover>
 
-        {/* Attachment (Disabled) */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               size="icon"
               variant="ghost"
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground mb-1"
             >
               <Paperclip className="h-5 w-5" />
             </Button>
@@ -144,24 +150,31 @@ export const ChatInput = ({
           </TooltipContent>
         </Tooltip>
 
-        {/* Text Input */}
-        <Input
+        {/* NATIVE TEXTAREA WITH SHADCN STYLES */}
+        <textarea
           ref={inputRef}
+          rows={1}
           placeholder={replyingTo ? "Type your reply..." : "Enter message..."}
-          className="flex-1 bg-muted/30 focus-visible:ring-1 focus-visible:ring-primary"
+          onInput={adjustHeight}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
               handleSend();
             }
           }}
+          className={cn(
+            "border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+
+            "flex-1 min-h-[40px] max-h-[150px]",
+            "resize-none overflow-hidden",
+            "bg-muted/30 focus-visible:ring-1 focus-visible:ring-primary",
+          )}
         />
 
-        {/* Send Button */}
         <Button
           size="icon"
           onClick={handleSend}
-          className="rounded-full h-10 w-10 shrink-0"
+          className="rounded-full h-10 w-10 shrink-0 mb-1"
         >
           <Send className="h-4 w-4 ml-0.5" />
         </Button>
