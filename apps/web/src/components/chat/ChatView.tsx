@@ -54,7 +54,7 @@ export default function ChatView({
   useEffect(() => {
     initConversation(conversationData.conversationId);
 
-    // setReplyingTo(null);
+    setReplyingTo(null);
   }, [conversationData.conversationId]);
 
   const handleLoadMore = async () => {
