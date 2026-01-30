@@ -67,3 +67,7 @@ export type MessagesFetchResponse = {
     nextCursor: Message["sequence"];
   };
 };
+
+const messageTypes = ["text", "image", "file", "system"] as const;
+
+export type MessageType = (typeof messageTypes)[number];

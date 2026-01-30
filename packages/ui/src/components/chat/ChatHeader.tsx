@@ -1,14 +1,19 @@
 import { ArrowLeft, MoreVertical, Phone, Video } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../avatar.js";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../dropdown-menu.js";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../dropdown-menu.js";
 import { Button } from "../button.js";
 import {
-    Item,
-    ItemContent,
-    ItemDescription,
-    ItemMedia,
-    ItemTitle,
-} from "@repo/ui/components/item"
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "@repo/ui/components/item";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../tooltip.js";
 import { useState } from "react";
 import { UserProfileSheet } from "./UserProfileSheet.js";

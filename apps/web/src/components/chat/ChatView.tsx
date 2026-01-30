@@ -1,16 +1,17 @@
 import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useUser } from "@clerk/clerk-react";
-import { ChatUser, ConversationWithOtherUser } from "@repo/db/types";
+import { ChatUser, ConversationWithOtherUser, Message } from "@repo/db/types";
 import { ChatHeader } from "@repo/ui/components/chat/ChatHeader";
 import {
   ChatMessages,
   ChatMessagesRef,
-} from "@repo/ui/components/chat/ChatMessages"; // Import UI component
+} from "@repo/ui/components/chat/ChatMessages";
 import { ChatInput } from "@repo/ui/components/chat/ChatInput";
 import { usePresenceSubscription } from "@/hooks/usePresenceSubscription";
 import { useMessageStore } from "@/store/messages.store";
 import { useMessagesSubscription } from "@/hooks/useMessagesSubscription.ts";
-import { useSendMessage } from "@/hooks/useSendMessage.ts"; // Import Store
+import { useSendMessage } from "@/hooks/useSendMessage.ts";
 
 export default function ChatView({
   conversationData,
@@ -22,22 +23,26 @@ export default function ChatView({
   const { presence } = usePresenceSubscription(conversationData.conversationId);
   const chatListRef = useRef<ChatMessagesRef>(null);
 
-  // 2. Send Message Hook
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+
   const sendMessageRaw = useSendMessage(conversationData.conversationId);
 
-  // 3. Wrapper Handler
-  const handleSendMessage = async (text: string) => {
-    // A. Force Scroll to bottom immediately (Optimistic UX)
+  const handleSendMessage = async ({
+    text,
+    replyToId,
+  }: {
+    text: string;
+    replyToId?: string;
+  }) => {
     chatListRef.current?.scrollToBottom(true);
 
-    // B. Send the message
-    await sendMessageRaw(text);
+    await sendMessageRaw({ text, replyToId });
 
-    // C. Optional: Scroll again slightly later to ensure sticky state
     setTimeout(() => chatListRef.current?.scrollToBottom(true), 50);
+
+    setReplyingTo(null);
   };
 
-  // 1. Extract Store State & Actions
   const {
     messages,
     isLoading,
@@ -47,13 +52,12 @@ export default function ChatView({
     failedIds,
   } = useMessageStore();
 
-  // 2. Initial Sync on Mount (or when ID changes)
   useEffect(() => {
     initConversation(conversationData.conversationId);
+
+    setReplyingTo(null);
   }, [conversationData.conversationId]);
 
-  // 3. Create the Load More Handler
-  // This wrapper function ensures we pass the correct ID
   const handleLoadMore = async () => {
     await loadOlderMessages(conversationData.conversationId);
   };
@@ -68,22 +72,28 @@ export default function ChatView({
 
   
   return (
-    <div className="flex h-svh w-full flex-col bg-background">
+    <div className="flex h-[100dvh] w-full flex-col bg-background">
       <ChatHeader
         onlineStatus={presence[conversationData.otherUser.id] ?? "offline"}
         chatWithUser={conversationData.otherUser}
       />
 
       <ChatMessages
+        ref={chatListRef}
         messages={messages}
         userData={chatUser!}
         isLoading={isLoading}
         hasMore={hasMoreOlderMessages}
         onLoadMore={handleLoadMore}
         failedIds={failedIds}
+        onReplyMessage={(msg) => setReplyingTo(msg)}
       />
 
-      <ChatInput sendMessage={handleSendMessage} />
+      <ChatInput
+        sendMessage={handleSendMessage}
+        replyingTo={replyingTo}
+        onCancelReply={() => setReplyingTo(null)}
+      />
     </div>
   );
 }
