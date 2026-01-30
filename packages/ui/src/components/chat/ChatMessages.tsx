@@ -65,6 +65,8 @@ export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(
 
     const virtualItems = virtualizer.getVirtualItems();
 
+    const highlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
     const handleScrollToReply = (replyId: string) => {
       const index = messageIndexMap.get(replyId);
 
@@ -75,11 +77,19 @@ export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(
         });
 
         setHighlightedId(replyId);
-        setTimeout(() => setHighlightedId(null), 2000);
+        if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
+        highlightTimeoutRef.current = setTimeout(() => setHighlightedId(null), 2000);
       } else {
         toast.info("Original message is too old to view right now.");
       }
     };
+
+    // Cleanup on unmount
+    useEffect(() => {
+      return () => {
+        if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
+      };
+    }, []);
 
     useImperativeHandle(ref, () => ({
       scrollToBottom: (smooth = false) => {
