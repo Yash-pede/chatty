@@ -13,10 +13,12 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../tooltip.js";
 import { useState } from "react";
 import { UserProfileSheet } from "./UserProfile.js";
 import { useRouter } from "@tanstack/react-router";
+import { ChatUser } from "@repo/db/types";
 
-export const ChatHeader = ({ imageUrl, name, onlineStatus }: { imageUrl: string; name: string, onlineStatus: "online" | "offline" }) => {
+export const ChatHeader = ({ onlineStatus, chatWithUser }: { onlineStatus: "online" | "offline", chatWithUser: ChatUser }) => {
     const [isProfileOpen, setIsProfileOpen] = useState(false)
     const router = useRouter();
+    const { firstName, lastName, imageUrl } = chatWithUser;
     return (
         <div className="flex items-center justify-between border-b px-4">
             <Item className="px-0">
@@ -25,12 +27,12 @@ export const ChatHeader = ({ imageUrl, name, onlineStatus }: { imageUrl: string;
                 </Button>
                 <ItemMedia>
                     <Avatar className="scale-125">
-                        <AvatarImage src={imageUrl} />
-                        <AvatarFallback>{name.slice(0, 2).toUpperCase() || ""}</AvatarFallback>
+                        <AvatarImage src={imageUrl || ""} />
+                        <AvatarFallback>{`${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase()}</AvatarFallback>
                     </Avatar>
                 </ItemMedia>
                 <ItemContent className="gap-0">
-                    <ItemTitle>{name.slice(0, name.indexOf(" ") > 0 ? name.indexOf(" ") : name.length)}</ItemTitle>
+                    <ItemTitle>{firstName}</ItemTitle>
                     <ItemDescription className={`${onlineStatus === "online" ? "text-chart-3" : "text-muted-foreground"}`}>{onlineStatus}</ItemDescription>
                 </ItemContent>
             </Item>
@@ -64,7 +66,7 @@ export const ChatHeader = ({ imageUrl, name, onlineStatus }: { imageUrl: string;
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <UserProfileSheet open={isProfileOpen} onOpenChange={setIsProfileOpen} />
+            <UserProfileSheet open={isProfileOpen} onOpenChange={setIsProfileOpen} chatWithUser={chatWithUser} onlineStatus={onlineStatus} />
         </div>
     );
 }

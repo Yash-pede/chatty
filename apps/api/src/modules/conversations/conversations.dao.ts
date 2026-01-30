@@ -104,6 +104,7 @@ export const conversationsDao = {
           lastName: users.lastName,
           userName: users.username,
           imageUrl: users.imageUrl,
+          email: users.email,
         },
       })
       .from(conversations)

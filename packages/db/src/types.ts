@@ -48,6 +48,7 @@ export type ChatUser = {
   lastName?: string | null;
   username?: string | null;
   imageUrl?: string | null;
+  email?: string | null;
 };
 
 //MESSAGES

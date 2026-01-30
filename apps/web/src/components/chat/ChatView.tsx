@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { ChatUser, ConversationWithOtherUser } from "@repo/db/types";
 import { ChatHeader } from "@repo/ui/components/chat/ChatHeader";
@@ -58,11 +58,6 @@ export default function ChatView({
     await loadOlderMessages(conversationData.conversationId);
   };
 
-  const displayName = useMemo(
-    () => conversationData.otherUser.firstName ?? "",
-    [conversationData],
-  );
-
   const chatUser: ChatUser = {
     id: user!.id,
     firstName: user!.firstName,
@@ -71,12 +66,12 @@ export default function ChatView({
     imageUrl: user!.imageUrl,
   };
 
+  
   return (
     <div className="flex h-svh w-full flex-col bg-background">
       <ChatHeader
-        name={displayName}
-        imageUrl={conversationData.otherUser.imageUrl ?? ""}
         onlineStatus={presence[conversationData.otherUser.id] ?? "offline"}
+        chatWithUser={conversationData.otherUser}
       />
 
       <ChatMessages
