@@ -11,7 +11,7 @@ import {
 } from "@repo/ui/components/item"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../tooltip.js";
 import { useState } from "react";
-import { UserProfileSheet } from "./UserProfile.js";
+import { UserProfileSheet } from "./UserProfileSheet.js";
 import { useRouter } from "@tanstack/react-router";
 import { ChatUser } from "@repo/db/types";
 

@@ -7,9 +7,10 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../avatar.js";
 import { Item, ItemDescription, ItemTitle } from "../item.js";
 import { Button } from "../button.js";
-import { Mail, UserX } from "lucide-react";
+import { Mail, User, UserX } from "lucide-react";
 import { Separator } from "../separator.js";
 import { ChatUser } from "@repo/db/types";
+import { Badge } from "../badge.js";
 
 export function UserProfileSheet({
   open,
@@ -36,28 +37,30 @@ export function UserProfileSheet({
           </Avatar>
 
           <ItemTitle className="text-lg md:text-2xl font-bold mt-4">{chatWithUser.firstName} {chatWithUser.lastName}</ItemTitle>
-          <ItemDescription
-            className={`font-medium px-3 py-1 rounded-full mt-1 text-xs uppercase tracking-wider 
-                ${onlineStatus === "online"
-                ? "bg-chart-3/10 text-chart-3"
-                : "bg-muted text-muted-foreground"
-              }`}>
-            {onlineStatus}
+          <ItemDescription>
+            <Badge variant={onlineStatus === "offline" ? "secondary" : "default"}>{onlineStatus}</Badge>
           </ItemDescription>
 
           <Separator />
-          {chatWithUser.email && (
-            <Item className="flex-col items-start w-full gap-1">
-              <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                <Mail className="size-4" />
-                <ItemTitle className="text-xs font-bold uppercase">Email Address</ItemTitle>
-              </div>
-              <ItemDescription className="text-foreground text-sm pl-6">
-                {chatWithUser.email}
-              </ItemDescription>
-            </Item>
-          )
-          }
+          <Item className="flex-col items-start w-full gap-1">
+            <div className="flex items-center gap-2 text-muted-foreground mb-1">
+              <User className="size-4" />
+              <ItemTitle className="text-xs font-bold uppercase">username</ItemTitle>
+            </div>
+            <ItemDescription className="text-foreground text-sm pl-6">
+              {chatWithUser.username}
+            </ItemDescription>
+          </Item>
+          <Item className="flex-col items-start w-full gap-1">
+            <div className="flex items-center gap-2 text-muted-foreground mb-1">
+              <Mail className="size-4" />
+              <ItemTitle className="text-xs font-bold uppercase">Email Address</ItemTitle>
+            </div>
+            <ItemDescription className="text-foreground text-sm pl-6">
+              {chatWithUser.email}
+            </ItemDescription>
+          </Item>
+
         </Item>
 
         <Button
