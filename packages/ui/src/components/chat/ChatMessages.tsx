@@ -3,14 +3,16 @@ import {
   forwardRef,
   useImperativeHandle,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import { ChatMessageItem } from "./ChatMessageItem.js";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { ArrowDown, Loader2 } from "lucide-react";
+import { toast } from "sonner"; // Assuming you use sonner
 
-// interface for the Ref
+// Interface for the Ref
 export interface ChatMessagesRef {
   scrollToBottom: (smooth?: boolean) => void;
 }
@@ -22,63 +24,99 @@ interface ChatMessagesProps {
   hasMore: boolean;
   onLoadMore: () => Promise<void>;
   failedIds: Set<string>;
+  onReplyMessage: (message: Message) => void;
 }
 
 export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(
-  ({ messages, userData, isLoading, hasMore, onLoadMore, failedIds }, ref) => {
+  (
+    {
+      messages,
+      userData,
+      isLoading,
+      hasMore,
+      onLoadMore,
+      failedIds,
+      onReplyMessage,
+    },
+    ref,
+  ) => {
     const parentRef = useRef<HTMLDivElement>(null);
     const [isFetchingOlder, setIsFetchingOlder] = useState(false);
-
-    // State to track if we should auto-scroll on new messages
     const [shouldStickToBottom, setShouldStickToBottom] = useState(true);
     const [showScrollButton, setShowScrollButton] = useState(false);
+
+    const [highlightedId, setHighlightedId] = useState<string | null>(null);
+
+    const messageMap = useMemo(
+      () => new Map(messages.map((m) => [m.id, m])),
+      [messages],
+    );
+    const messageIndexMap = useMemo(
+      () => new Map(messages.map((m, i) => [m.id, i])),
+      [messages],
+    );
 
     const virtualizer = useVirtualizer({
       count: messages.length,
       getScrollElement: () => parentRef.current,
-      estimateSize: () => 60,
+      estimateSize: () => 80,
       overscan: 5,
     });
 
     const virtualItems = virtualizer.getVirtualItems();
 
-    // 1. Expose scrollToBottom to Parent (ChatView)
+    const highlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const handleScrollToReply = (replyId: string) => {
+      const index = messageIndexMap.get(replyId);
+
+      if (index !== undefined) {
+        virtualizer.scrollToIndex(index, {
+          align: "center",
+          behavior: "smooth",
+        });
+
+        setHighlightedId(replyId);
+        if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
+        highlightTimeoutRef.current = setTimeout(() => setHighlightedId(null), 2000);
+      } else {
+        toast.info("Original message is too old to view right now.");
+      }
+    };
+
+    // Cleanup on unmount
+    useEffect(() => {
+      return () => {
+        if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
+      };
+    }, []);
+
     useImperativeHandle(ref, () => ({
       scrollToBottom: (smooth = false) => {
-        if (!parentRef.current) return;
-
-        // Force scroll to end
+        if (!parentRef.current || messages.length === 0) return;
         virtualizer.scrollToIndex(messages.length - 1, {
           align: "end",
           behavior: smooth ? "smooth" : "auto",
         });
-
-        // Re-enable stickiness
         setShouldStickToBottom(true);
         setShowScrollButton(false);
       },
     }));
 
-    // 2. Smart Auto-Scroll Logic
     useLayoutEffect(() => {
-      // Only scroll if we are "stuck" to the bottom
       if (shouldStickToBottom && messages.length > 0) {
         virtualizer.scrollToIndex(messages.length - 1, { align: "end" });
       }
     }, [messages.length, shouldStickToBottom, virtualizer]);
 
-    // 3. Scroll Listener
     const onScroll = async (e: React.UIEvent<HTMLDivElement>) => {
       const target = e.currentTarget;
-
-      // A. Check if user is at the bottom (within 100px)
       const isAtBottom =
         target.scrollHeight - target.scrollTop - target.clientHeight <= 100;
 
       setShouldStickToBottom(isAtBottom);
       setShowScrollButton(!isAtBottom);
 
-      // B. Load Older Messages (Top)
       if (
         target.scrollTop < 50 &&
         hasMore &&
@@ -92,7 +130,6 @@ export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(
 
         await onLoadMore();
 
-        // Restore scroll position to prevent jumping
         requestAnimationFrame(() => {
           if (parentRef.current) {
             const newHeight = parentRef.current.scrollHeight;
@@ -110,7 +147,7 @@ export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(
           className="flex-1 overflow-y-auto px-4 py-6 scroll-smooth"
           onScroll={onScroll}
         >
-          {/* Loading Spinner */}
+          {/* Top Loading Spinner */}
           {isLoading && messages.length > 0 && (
             <div className="absolute top-2 left-0 w-full flex justify-center z-10">
               <div className="bg-background/80 rounded-full p-1 shadow-sm border">
@@ -119,21 +156,26 @@ export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(
             </div>
           )}
 
-          {/* Initial Loading */}
+          {/* Empty State / Initial Load */}
           {isLoading && messages.length === 0 && (
             <div className="flex h-full items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           )}
 
+          {/* Virtual List */}
           <div
             className="relative w-full"
-            style={{
-              height: `${virtualizer.getTotalSize()}px`,
-            }}
+            style={{ height: `${virtualizer.getTotalSize()}px` }}
           >
             {virtualItems.map((vItem) => {
               const message = messages[vItem.index]!;
+
+              // Find the parent message object if replyToId exists
+              const parentMessage = message.replyToId
+                ? messageMap.get(message.replyToId)
+                : undefined;
+
               return (
                 <div
                   key={vItem.key}
@@ -152,6 +194,10 @@ export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(
                     message={message}
                     isFailed={failedIds.has(message.id)}
                     onRetry={() => {}}
+                    onReply={onReplyMessage}
+                    repliedToMessage={parentMessage}
+                    onScrollToReply={handleScrollToReply}
+                    isHighlighted={highlightedId === message.id}
                   />
                 </div>
               );
@@ -159,7 +205,7 @@ export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(
           </div>
         </div>
 
-        {/* Scroll to Bottom Button */}
+        {/* Scroll To Bottom Fab */}
         {showScrollButton && (
           <button
             onClick={() => {
