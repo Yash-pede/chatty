@@ -1,15 +1,6 @@
-import {
-  SidebarMenuAction,
-  SidebarMenuBadge,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@repo/ui/components/sidebar";
+import { SidebarMenuAction, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem } from "@repo/ui/components/sidebar";
 import { Card } from "@repo/ui/components/card";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@repo/ui/components/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/avatar";
 import { MoreVertical } from "lucide-react";
 import { ConversationWithOtherUser } from "@repo/db/types";
 import dayjs from "dayjs";
@@ -40,7 +31,11 @@ const SidebarChatItem = ({
             <div className="relative">
               <Avatar className="h-10 w-10">
                 <AvatarImage src={conversation.otherUser.imageUrl ?? ""} />
-                <AvatarFallback>JS</AvatarFallback>
+                <AvatarFallback>
+                  {conversation.otherUser.firstName
+                    ?.slice(0, 2)
+                    .toUpperCase() || ""}
+                </AvatarFallback>
               </Avatar>
 
               {/* Online indicator */}
