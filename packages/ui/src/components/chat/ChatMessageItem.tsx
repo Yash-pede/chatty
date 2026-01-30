@@ -56,8 +56,10 @@ export const ChatMessageItem = ({
   return (
     <div
       className={cn(
-        "flex w-full mb-1 px-2 group",
-        isMe ? "justify-end" : "justify-start",
+        "flex w-fit max-w-[75%] flex-col items-end gap-1 rounded-lg px-4 py-3 text-sm my-1",
+        "wrap-break-word whitespace-pre-wrap break-all",
+        isMe ? "ml-auto bg-primary text-primary-foreground" : "bg-muted",
+        isFailed && "bg-destructive",
       )}
     >
       <div

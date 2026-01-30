@@ -56,7 +56,7 @@ export const conversationsDao = {
           id: users.id,
           firstName: users.firstName,
           lastName: users.lastName,
-          userName: users.username,
+          username: users.username,
           imageUrl: users.imageUrl,
         },
       })
@@ -102,8 +102,9 @@ export const conversationsDao = {
           id: users.id,
           firstName: users.firstName,
           lastName: users.lastName,
-          userName: users.username,
+          username: users.username,
           imageUrl: users.imageUrl,
+          email: users.email,
         },
       })
       .from(conversations)
